@@ -13,6 +13,7 @@ import githubLogo from "./githubLogo.png";
 import profile from "./profile.jpg";
 import shoppingcart from "./shoppingcart.png";
 import emptycart from "./emptycart.png";
+import bg from "./bg.jpg";
 
 export {
   logoDark,
@@ -24,6 +25,7 @@ export {
   logoLight1,
   cartImg1,
   cartWhite,
+  bg,
   logo,
   emptycart,
   shoppingcart,
