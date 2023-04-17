@@ -12,6 +12,7 @@ import { productsData } from "./api/Api";
 import Product from "./components/Product";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Forgotpass from "./pages/Forgotpass";
 
 const Layout = () => {
   return (
@@ -49,6 +50,10 @@ const router = createBrowserRouter([
       {
         path: "/signup",
         element: <Register />,
+      },
+      {
+        path: "/forgotpass",
+        element: <Forgotpass />,
       },
     ],
   },

@@ -19,13 +19,13 @@ const Product = () => {
       <div className="max-w-screen-xl mx-auto my-10 flex gap-10">
         <div className="w-2/5 relative">
           <img
-            className="w-full h-[550px] object-cover"
+            className="w-full h-[550px] flex object-contain"
             src={details.image}
             alt="productImg"
           />
           <div className="absolute top-4 right-0">
             {details.isNew && (
-              <p className="bg-black text-white font-semibold font-titleFont px-8 py-1">
+              <p className="bg-black text-white font-titleFont px-8 py-1">
                 Sale
               </p>
             )}

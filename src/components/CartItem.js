@@ -1,20 +1,18 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { MdOutlineClose } from "react-icons/md";
+import { MdOutlineDeleteForever } from "react-icons/md";
 import {
   decrementQuantity,
   deleteItem,
   increamentQuantity,
-  resetCart,
 } from "../redux/getNpaySlice";
 
 const CartItem = () => {
   const dispatch = useDispatch();
   const productData = useSelector((state) => state.getNpay.productData);
   return (
-    <div className=" pr-10">
+    <div>
       <div className="w-full">
-        {" "}
         <h2 className="font-titleFont text-2xl">shopping cart</h2>
       </div>
       <div>
@@ -24,19 +22,19 @@ const CartItem = () => {
             className="flex items-center justify-between gap-6 mt-6"
           >
             <div className="flex items-center gap-2">
-              <MdOutlineClose
+              <MdOutlineDeleteForever
                 onClick={() => dispatch(deleteItem(item._id))}
                 className="text-xl text-gray-600 hover:text-red-600 cursor-pointer duration-300"
               />
               <img
-                className="w-32 h-32 object-cover flex"
+                className="w-32 h-32 object-cover"
                 src={item.image}
                 alt="productImg"
               />
             </div>
-            <h2 className="w-52">{item.title}</h2>
+            <h2 className="w-28">{item.title}</h2>
             <p className="w-10">${item.price}</p>
-            <div className="w-52 flex items-center justify-between text-gray-500 gap-4 border p-3">
+            <div className="w-28 flex items-center justify-between text-gray-500  border p-3">
               {/* <p className="text-sm">Quantity</p> */}
               <div className="flex items-center gap-4 text-sm font-semibold">
                 <span
