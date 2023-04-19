@@ -1,5 +1,5 @@
-import Header from "./components/Header";
-import Products from "./components/Products";
+// import Header from "./components/Header";
+// import Products from "./components/Products";
 import Home from "./pages/Home";
 import {
   createBrowserRouter,
@@ -13,6 +13,7 @@ import Product from "./components/Product";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Forgotpass from "./pages/Forgotpass";
+import LoginAdmin from "./adminpage/LoginAdmin";
 
 const Layout = () => {
   return (
@@ -54,6 +55,10 @@ const router = createBrowserRouter([
       {
         path: "/forgotpass",
         element: <Forgotpass />,
+      },
+      {
+        path: "/login/admin",
+        element: <LoginAdmin />,
       },
     ],
   },

@@ -6,17 +6,42 @@ import {
   signInWithPopup,
   signOut,
 } from "firebase/auth";
+import { useState, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { addUser, removeUser } from "../redux/getNpaySlice";
 import { NavLink, useNavigate } from "react-router-dom";
 import { logoLight } from "../assets/index";
+import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 
 const Login = () => {
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
   const auth = getAuth();
   const navigate = useNavigate("");
   const dispatch = useDispatch();
   const provider = new GoogleAuthProvider();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      // Do something with currentUser if needed
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    signInWithEmailAndPassword(auth, loginEmail, loginPassword)
+      .then((userCredential) => {
+        navigate("/cart");
+      })
+      .catch((error) => {
+        alert(error.message);
+      });
+  };
 
   const handleGoogleLogin = () => {
     signInWithPopup(auth, provider)
@@ -38,7 +63,7 @@ const Login = () => {
         // // IdP data available using getAdditionalUserInfo(result)
         // // ...
         setTimeout(() => {
-          navigate("/");
+          navigate("/cart");
         }, 1500);
       })
       .catch((error) => {
@@ -60,7 +85,7 @@ const Login = () => {
         toast.success("Log Out Successfully!");
         dispatch(removeUser());
         setTimeout(() => {
-          navigate("/");
+          navigate("/login");
         }, 1500);
       })
 
@@ -70,16 +95,16 @@ const Login = () => {
   };
   return (
     <div className="bg-background bg-no-repeat bg-cover bg-center">
-      <div class="flex items-center min-h-screen p-4 lg:justify-center">
-        <div class="flex flex-col overflow-hidden bg-white bg-opacity-25 rounded-md shadow-lg max md:flex-row md:flex-1 lg:max-w-screen-md">
-          <div class="p-4 py-6 text-white bg-blue-500 bg-opacity-25 md:w-80 md:flex-shrink-0 md:flex md:flex-col md:items-center md:justify-evenly">
-            <div class="my-3 text-4xl font-bold tracking-wider text-center">
+      <div className="flex items-center min-h-screen p-4 lg:justify-center">
+        <div className="flex flex-col overflow-hidden bg-white bg-opacity-25 rounded-md shadow-lg max md:flex-row md:flex-1 lg:max-w-screen-md">
+          <div className="p-4 py-6 text-white bg-blue-500 bg-opacity-25 md:w-80 md:flex-shrink-0 md:flex md:flex-col md:items-center md:justify-evenly">
+            <div className="my-3 text-4xl font-bold tracking-wider text-center">
               <img src={logoLight} />
             </div>
 
-            <p class="flex flex-col items-center justify-center mt-10 text-center">
+            <p className="flex flex-col items-center justify-center mt-10 text-center">
               <span>Don't have an account?</span>
-              <a href="/signup" class="underline">
+              <a href="/signup" className="underline">
                 Create an account here
               </a>
             </p>
@@ -94,79 +119,93 @@ const Login = () => {
               </a>
             </p> */}
           </div>
-          <div class="p-5 bg-white md:flex-1">
-            <h3 class="my-4 text-2xl font-semibold justify-center flex text-blue-600">
+          <div className="p-5 bg-white md:flex-1">
+            <h3 className="my-4 text-2xl font-semibold justify-center flex text-blue-600">
               Account Login
             </h3>
-            <form action="#" class="flex flex-col space-y-5">
-              <div class="flex flex-col space-y-1">
-                <label for="email" class="text-sm font-semibold text-gray-500">
+            <form action="#" className="flex flex-col space-y-5">
+              <div className="flex flex-col space-y-1">
+                <label
+                  for="email"
+                  className="text-sm font-semibold text-gray-500"
+                >
                   Email address
                 </label>
                 <input
+                  value={loginEmail}
+                  onChange={(event) => {
+                    setLoginEmail(event.target.value);
+                  }}
                   type="email"
                   id="email"
                   autofocus
-                  class="px-4 py-2 transition duration-300 border border-gray-300 rounded focus:border-transparent focus:outline-none focus:ring-4 focus:ring-blue-200"
+                  className="px-4 py-2 transition duration-300 border border-gray-300 rounded focus:border-transparent focus:outline-none focus:ring-4 focus:ring-blue-200"
                 />
               </div>
-              <div class="flex flex-col space-y-1">
-                <div class="flex items-center justify-between">
+              <div className="flex flex-col space-y-1">
+                <div className="flex items-center justify-between">
                   <label
                     for="password"
-                    class="text-sm font-semibold text-gray-500"
+                    className="text-sm font-semibold text-gray-500"
                   >
                     Password
                   </label>
                   <a
-                    href="#"
-                    class="text-sm text-blue-600 hover:underline focus:text-blue-800"
+                    href="/forgotpass"
+                    className="text-sm text-blue-600 hover:underline focus:text-blue-800"
                   >
                     Forgot Password?
                   </a>
                 </div>
                 <input
+                  value={loginPassword}
+                  onChange={(event) => {
+                    setLoginPassword(event.target.value);
+                  }}
                   type="password"
                   id="password"
-                  class="px-4 py-2 transition duration-300 border border-gray-300 rounded focus:border-transparent focus:outline-none focus:ring-4 focus:ring-blue-200"
+                  className="px-4 py-2 transition duration-300 border border-gray-300 rounded focus:border-transparent focus:outline-none focus:ring-4 focus:ring-blue-200"
                 />
               </div>
-              <div class="flex items-center space-x-2">
+              <div className="flex items-center space-x-2">
                 <input
                   type="checkbox"
                   id="remember"
-                  class="w-4 h-4 transition duration-300 rounded focus:ring-2 focus:ring-offset-0 focus:outline-none focus:ring-blue-200"
+                  className="w-4 h-4 transition duration-300 rounded focus:ring-2 focus:ring-offset-0 focus:outline-none focus:ring-blue-200"
                 />
                 <label
                   for="remember"
-                  class="text-sm font-semibold text-gray-500"
+                  className="text-sm font-semibold text-gray-500"
                 >
                   Remember me
                 </label>
               </div>
               <div>
                 <button
+                  onClick={handleLogin}
                   type="submit"
-                  class="w-full px-4 py-2 text-lg  text-white transition-colors duration-300 bg-blue-500 rounded-md shadow hover:bg-blue-600 focus:outline-none focus:ring-blue-200 focus:ring-4"
+                  className="w-full px-4 py-2 text-lg  text-white transition-colors duration-300 bg-blue-500 rounded-md shadow hover:bg-blue-600 focus:outline-none focus:ring-blue-200 focus:ring-4"
                 >
                   Log in
                 </button>
               </div>
-              <div class="flex flex-col space-y-5">
-                <span class="flex items-center justify-center space-x-2">
-                  <span class="h-px bg-gray-400 w-14"></span>
-                  <span class="font-normal text-gray-500">or login with</span>
-                  <span class="h-px bg-gray-400 w-14"></span>
+              <div className="flex flex-col space-y-5">
+                <span className="flex items-center justify-center space-x-2">
+                  <span className="h-px bg-gray-400 w-14"></span>
+                  <span className="font-normal text-gray-500">
+                    or login with
+                  </span>
+                  <span className="h-px bg-gray-400 w-14"></span>
                 </span>
-                <div class="flex flex-col space-y-4">
+                <div className="flex flex-col space-y-4">
                   <div
                     onClick={handleGoogleLogin}
-                    class="flex items-center justify-center px-4 py-2 space-x-2 transition-colors duration-300 border border-gray-800 rounded-md group hover:bg-blue-600 focus:outline-none"
+                    className="flex items-center justify-center px-4 py-2 space-x-2 transition-colors duration-300 border border-gray-800 rounded-md group hover:bg-blue-600 focus:outline-none"
                   >
                     <span>
                       <img className="w-6" src={googleLogo} alt="googleLogo" />
                     </span>
-                    <span class="text-sm font-medium text-gray-800 group-hover:text-white">
+                    <span className="text-sm font-medium text-gray-800 group-hover:text-white">
                       Google
                     </span>
                   </div>
