@@ -1,17 +1,25 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyB9OWSw9wea5XODvAFOnmRl-Zrpe8DliTE",
-  authDomain: "getnpay-8ef89.firebaseapp.com",
-  projectId: "getnpay-8ef89",
-  storageBucket: "getnpay-8ef89.appspot.com",
-  messagingSenderId: "268164702923",
-  appId: "1:268164702923:web:cc3f6af0c3aa14d18ef14e",
+  apiKey: "AIzaSyCnUROYWtm_BscIL0UjjhR1xd_wrEDoBhA",
+  authDomain: "getnpay-bfbd2.firebaseapp.com",
+  databaseURL:
+    "https://getnpay-bfbd2-default-rtdb.asia-southeast1.firebasedatabase.app/",
+  projectId: "getnpay-bfbd2",
+  storageBucket: "getnpay-bfbd2.appspot.com",
+  messagingSenderId: "1041137350983",
+  appId: "1:1041137350983:web:f932622188833064cfb462",
 };
 
 // Initialize Firebase
 export const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+export { auth, db };

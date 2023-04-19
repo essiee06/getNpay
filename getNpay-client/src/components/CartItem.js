@@ -16,67 +16,119 @@ const CartItem = () => {
         <h2 className="font-titleFont text-2xl">shopping cart</h2>
       </div>
       <div>
-        {productData.map((item) => (
-          <div
-            key={item._id}
-            className="flex items-center justify-between gap-6 mt-6"
-          >
-            <div className="flex items-center gap-2">
-              <MdOutlineDeleteForever
-                onClick={() => dispatch(deleteItem(item._id))}
-                className="text-xl text-gray-600 hover:text-red-600 cursor-pointer duration-300"
-              />
-              <img
-                className="w-32 h-32 object-cover"
-                src={item.image}
-                alt="productImg"
-              />
-            </div>
-            <h2 className="w-28">{item.title}</h2>
-            <p className="w-10">${item.price}</p>
-            <div className="w-28 flex items-center justify-between text-gray-500  border p-3">
-              {/* <p className="text-sm">Quantity</p> */}
-              <div className="flex items-center gap-4 text-sm font-semibold">
-                <span
-                  onClick={() =>
-                    dispatch(
-                      decrementQuantity({
-                        _id: item._id,
-                        title: item.title,
-                        image: item.image,
-                        price: item.price,
-                        quantity: 1,
-                        description: item.description,
-                      })
-                    )
-                  }
-                  className="border h-5 font-normal text-lg flex items-center justify-center px-2 hover:bg-gray-700 hover:text-white cursor-pointer duration-300 active:bg-black"
-                >
-                  -
-                </span>
-                {item.quantity}
-                <span
-                  onClick={() =>
-                    dispatch(
-                      increamentQuantity({
-                        _id: item._id,
-                        title: item.title,
-                        image: item.image,
-                        price: item.price,
-                        quantity: 1,
-                        description: item.description,
-                      })
-                    )
-                  }
-                  className="border h-5 font-normal text-lg flex items-center justify-center px-2 hover:bg-gray-700 hover:text-white cursor-pointer duration-300 active:bg-black"
-                >
-                  +
-                </span>
-              </div>
-            </div>
-            <p className="w-14">${item.quantity * item.price}</p>
-          </div>
-        ))}
+        <div class="flex border items-center justify-between gap-6 mt-6">
+          <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+              <tr>
+                <th scope="col" class="px-6 py-3">
+                  <span class="sr-only">Image</span>
+                </th>
+                <th scope="col" class="px-6 py-3">
+                  Product
+                </th>
+                <th scope="col" class="px-6 py-3">
+                  Qty
+                </th>
+                <th scope="col" class="px-6 py-3">
+                  Price
+                </th>
+                {/* <th scope="col" class="px-6 py-3">
+                  Action
+                </th> */}
+              </tr>
+            </thead>
+            <tbody>
+              {productData.map((item) => (
+                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                  <td class="w-32 p-4">
+                    <img src={item.image} alt="Apple Watch" />
+                  </td>
+                  <td class="px-6 py-4 font-semibold text-gray-900 dark:text-white">
+                    {item.title}
+                  </td>
+                  <td class="px-6 py-4">
+                    <div class="flex items-center space-x-3">
+                      <span
+                        onClick={() =>
+                          dispatch(
+                            decrementQuantity({
+                              _id: item._id,
+                              title: item.title,
+                              image: item.image,
+                              price: item.price,
+                              quantity: 1,
+                              description: item.description,
+                            })
+                          )
+                        }
+                        // class="sr-only"
+                      >
+                        <svg
+                          class="w-4 h-4"
+                          aria-hidden="true"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            fill-rule="evenodd"
+                            d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+                            clip-rule="evenodd"
+                          ></path>
+                        </svg>
+                      </span>
+
+                      <div> {item.quantity}</div>
+
+                      <span
+                        onClick={() =>
+                          dispatch(
+                            increamentQuantity({
+                              _id: item._id,
+                              title: item.title,
+                              image: item.image,
+                              price: item.price,
+                              quantity: 1,
+                              description: item.description,
+                            })
+                          )
+                        }
+                        // class="sr-only"
+                      >
+                        <svg
+                          class="w-4 h-4"
+                          aria-hidden="true"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            fill-rule="evenodd"
+                            d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                            clip-rule="evenodd"
+                          ></path>
+                        </svg>
+                      </span>
+
+                      {/* </button> */}
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 font-semibold text-gray-900 dark:text-white">
+                    ₱{item.quantity * item.price}
+                  </td>
+                  {/* <td class="px-6 py-4">
+                    <p
+                      onClick={() => dispatch(deleteItem(item._id))}
+                      class="font-medium text-red-600 dark:text-red-500 hover:to-blue-400"
+                    >
+                      Remove
+                    </p>
+                  </td> */}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

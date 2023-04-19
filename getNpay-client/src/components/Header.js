@@ -63,7 +63,7 @@ const Header = () => {
             <span className="sr-only">Open user menu</span>
 
             <img
-              class="w-10 rounded-full"
+              className="w-10 rounded-full"
               src={
                 userInfo
                   ? userInfo.image
