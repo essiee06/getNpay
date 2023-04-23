@@ -14,8 +14,10 @@ import profile from "./profile.jpg";
 import shoppingcart from "./shoppingcart.png";
 import emptycart from "./emptycart.png";
 import bg from "./bg.jpg";
+import defaultAvatar from "./defaultAvatar.png";
 
 export {
+  defaultAvatar,
   logoDark,
   logoLight,
   cartImg,

@@ -11,7 +11,7 @@ const CartItem = () => {
   const dispatch = useDispatch();
   const productData = useSelector((state) => state.getNpay.productData);
   return (
-    <div>
+    <div className="py-10">
       <div className="w-full">
         <h2 className="font-titleFont text-2xl">shopping cart</h2>
       </div>

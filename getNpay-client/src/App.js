@@ -14,6 +14,10 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Forgotpass from "./pages/Forgotpass";
 import LoginAdmin from "./adminpage/LoginAdmin";
+import Dashboard from "./adminpage/Dashboard";
+import AdminProfile from "./adminpage/AdminProfile";
+import Profile from "./pages/Profile";
+import AddProduct from "./adminpage/AddProduct";
 
 const Layout = () => {
   return (
@@ -32,7 +36,7 @@ const router = createBrowserRouter([
     element: <Layout />,
     children: [
       {
-        path: "/",
+        path: "/home",
         element: <Home />,
         loader: productsData,
       },
@@ -45,7 +49,7 @@ const router = createBrowserRouter([
         element: <Cart />,
       },
       {
-        path: "/login",
+        path: "/",
         element: <Login />,
       },
       {
@@ -59,6 +63,22 @@ const router = createBrowserRouter([
       {
         path: "/login/admin",
         element: <LoginAdmin />,
+      },
+      {
+        path: "/admin/dashboard",
+        element: <Dashboard />,
+      },
+      {
+        path: "/admin/profile",
+        element: <AdminProfile />,
+      },
+      {
+        path: "/profile",
+        element: <Profile />,
+      },
+      {
+        path: "/admin/addproduct",
+        element: <AddProduct />,
       },
     ],
   },
