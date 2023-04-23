@@ -1,6 +1,24 @@
-import React from "react";
+import React, { useState } from "react";
+import { getAuth } from "firebase/auth";
+import { app } from "../firebase.config";
+import { sendPasswordResetEmail } from "firebase/auth";
+import { auth } from "../firebase.config";
 
 const Forgotpass = () => {
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      await sendPasswordResetEmail(auth, email);
+      setMessage("Password reset link has been sent to your email.");
+    } catch (error) {
+      setMessage(error.message);
+    }
+  };
+
   return (
     <div className="bg-background bg-no-repeat bg-cover bg-center">
       <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
@@ -8,7 +26,11 @@ const Forgotpass = () => {
           <h2 className="mb-1 text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
             Change Password
           </h2>
-          <form className="mt-4 space-y-4 lg:mt-5 md:space-y-5" action="#">
+          <form
+            onSubmit={handleSubmit}
+            className="mt-4 space-y-4 lg:mt-5 md:space-y-5"
+            action="#"
+          >
             <div>
               <label
                 for="email"
@@ -17,6 +39,10 @@ const Forgotpass = () => {
                 Your email
               </label>
               <input
+                value={email}
+                onChange={(event) => {
+                  setEmail(event.target.value);
+                }}
                 type="email"
                 name="email"
                 id="email"
@@ -33,6 +59,9 @@ const Forgotpass = () => {
               Submit
             </button>
           </form>
+          {message && (
+            <div className="mt-4 text-center text-black-500">{message}</div>
+          )}
         </div>
       </div>
     </div>
