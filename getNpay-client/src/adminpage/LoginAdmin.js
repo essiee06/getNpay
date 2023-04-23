@@ -1,29 +1,34 @@
 import React from "react";
 import {
-  GoogleAuthProvider,
   getAuth,
-  //   signInWithPopup,
-  //   signOut,
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
 } from "firebase/auth";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  query,
+  where,
+} from "firebase/firestore";
 import { useState, useEffect } from "react";
-// import { ToastContainer, toast } from "react-toastify";
 import { useDispatch } from "react-redux";
-// import { addUser, removeUser } from "../redux/getNpaySlice";
 import { useNavigate } from "react-router-dom";
 import { logoLight } from "../assets/index";
-import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 
 const Login = () => {
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   const auth = getAuth();
-  const navigate = useNavigate("");
+  const firestore = getFirestore();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
-  const provider = new GoogleAuthProvider();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      // Do something with currentUser if needed
+      if (currentUser) {
+        navigate("/admin/dashboard");
+      }
     });
 
     return () => {
@@ -31,15 +36,24 @@ const Login = () => {
     };
   }, []);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    signInWithEmailAndPassword(auth, loginEmail, loginPassword)
-      .then((userCredential) => {
-        navigate("/cart");
-      })
-      .catch((error) => {
-        alert(error.message);
-      });
+    const adminRef = collection(firestore, "admins");
+    const q = query(adminRef, where("email", "==", loginEmail));
+    const querySnapshot = await getDocs(q);
+    let validCredentials = false;
+
+    querySnapshot.forEach((doc) => {
+      if (doc.data().password === loginPassword) {
+        validCredentials = true;
+      }
+    });
+
+    if (validCredentials) {
+      navigate("/admin/dashboard");
+    } else {
+      alert("Invalid credentials.");
+    }
   };
 
   //   const handleGoogleLogin = () => {
@@ -165,7 +179,7 @@ const Login = () => {
               </div>
               <div>
                 <button
-                  // onClick={handleLogin}
+                  onClick={handleLogin}
                   type="submit"
                   className="w-full px-4 py-2 text-lg  text-white transition-colors duration-300 bg-blue-500 rounded-md shadow hover:bg-blue-600 focus:outline-none focus:ring-blue-200 focus:ring-4"
                 >
