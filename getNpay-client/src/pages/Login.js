@@ -35,8 +35,19 @@ const Login = () => {
   const handleLogin = (e) => {
     e.preventDefault();
     signInWithEmailAndPassword(auth, loginEmail, loginPassword)
-      .then((userCredential) => {
-        navigate("/cart");
+      .then((result) => {
+        const user = result.user;
+        dispatch(
+          addUser({
+            _id: user.uid,
+            name: user.displayName,
+            email: user.email,
+            image: user.photoURL,
+          })
+        );
+        setTimeout(() => {
+          navigate("/cart");
+        }, 1500);
       })
       .catch((error) => {
         alert(error.message);
@@ -55,13 +66,7 @@ const Login = () => {
             image: user.photoURL,
           })
         );
-        // This gives you a Google Access Token. You can use it to access the Google API.
-        // const credential = GoogleAuthProvider.credentialFromResult(result);
-        // const token = credential.accessToken;
-        // // The signed-in user info.
-        // const user = result.user;
-        // // IdP data available using getAdditionalUserInfo(result)
-        // // ...
+
         setTimeout(() => {
           navigate("/cart");
         }, 1500);
@@ -108,16 +113,6 @@ const Login = () => {
                 Create an account here
               </a>
             </p>
-            {/* <p class="mt-6 text-sm text-center text-gray-300">
-              Read our{" "}
-              <a href="#" class="underline">
-                terms
-              </a>{" "}
-              and{" "}
-              <a href="#" class="underline">
-                conditions
-              </a>
-            </p> */}
           </div>
           <div className="p-5 bg-white md:flex-1">
             <h3 className="my-4 text-2xl font-semibold justify-center flex text-blue-600">

@@ -12,7 +12,7 @@ const AdminProfile = () => {
           <div className="grid  grid-cols-1 px-4 pt-6 xl:grid-cols-3 xl:gap-4 dark:bg-gray-900">
             <div className="mt-12 pt-5 col-span-full xl:mb-2">
               <h1 className="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">
-                ADMI PROFILE
+                ADMIN PROFILE
               </h1>
             </div>
             {/* <!-- Right Content --> */}
