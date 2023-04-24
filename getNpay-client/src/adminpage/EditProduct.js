@@ -1,6 +1,44 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { updateProduct } from "../redux/getNpaySlice";
+import { useDispatch } from "react-redux";
 
 const EditProduct = () => {
+  const dispatch = useDispatch();
+
+  //EDIT PRODUCT
+  const [editedproductName, setEditedProductName] = useState("");
+  const [editedRFIDnum, setEditedRFIDnum] = useState("");
+  const [editedprice, setEditedPrice] = useState("");
+  const [editedcategory, setEditedCategory] = useState("");
+  const [editedimageproduct, setEditedImageProduct] = useState("");
+
+  // //Edit Products
+  const [productEdit, setProductEdit] = useState(null);
+
+  // const cancelUpdate = () => {
+  //   setProductEdit(null);
+  // };
+  useEffect(() => {
+    if (productEdit !== null) {
+      setEditedProductName(productEdit.product.productName);
+      setEditedRFIDnum(productEdit.product.RFIDnum);
+      setEditedPrice(productEdit.product.price);
+      setEditedCategory(productEdit.product.category);
+      setEditedImageProduct(productEdit.product.imageproduct);
+    }
+  }, [productEdit]);
+
+  const handleUpdateProduct = (e) => {
+    let product = {
+      productName: editedproductName,
+      RFIDnum: editedRFIDnum,
+      price: editedprice,
+      category: editedcategory,
+      imageproduct: editedimageproduct,
+    };
+    dispatch(updateProduct({ id: productEdit.id, product }));
+  };
+
   return (
     <div
       id="editProductModal"
@@ -11,7 +49,7 @@ const EditProduct = () => {
       <div class="relative w-full max-w-2xl max-h-full">
         {/* <!-- Modal content --> */}
         <form
-          action="#"
+          onSubmit={handleUpdateProduct}
           class="relative bg-white rounded-lg shadow dark:bg-gray-700"
         >
           {/* <!-- Modal header --> */}
@@ -50,6 +88,8 @@ const EditProduct = () => {
                   Product Name
                 </label>
                 <input
+                  onChange={(e) => setEditedProductName(e.target.value)}
+                  value={editedproductName}
                   type="text"
                   name="product-name"
                   id="product-name"
@@ -66,6 +106,8 @@ const EditProduct = () => {
                   RFID Tag UID No.:
                 </label>
                 <input
+                  onChange={(e) => setEditedRFIDnum(e.target.value)}
+                  value={editedRFIDnum}
                   type="number"
                   name="RFIDtagNum"
                   id="RFIDtagNum"
@@ -83,6 +125,8 @@ const EditProduct = () => {
                   Price
                 </label>
                 <input
+                  onChange={(e) => setEditedPrice(e.target.value)}
+                  value={editedprice}
                   type="price"
                   name="price"
                   id="price"
@@ -99,6 +143,8 @@ const EditProduct = () => {
                   Category
                 </label>
                 <input
+                  onChange={(e) => setEditedCategory(e.target.value)}
+                  value={editedcategory}
                   type="text"
                   name="category"
                   id="category"
@@ -144,7 +190,13 @@ const EditProduct = () => {
                         SVG, PNG, JPG or GIF (MAX. 800x400px)
                       </p>
                     </div>
-                    <input id="dropzone-file" type="file" class="hidden" />
+                    <input
+                      onChange={(e) => setEditedImageProduct(e.target.value)}
+                      value={editedimageproduct}
+                      id="dropzone-file"
+                      type="file"
+                      class="hidden"
+                    />
                   </label>
                 </div>
               </div>

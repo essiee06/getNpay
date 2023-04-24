@@ -30,6 +30,8 @@ const AddProduct = () => {
     setCategory("");
     setImageProduct("");
   };
+  //Edit Products
+  const [productEdit, setProductEdit] = useState(null);
 
   return (
     <div

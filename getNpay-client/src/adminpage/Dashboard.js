@@ -1,8 +1,8 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import HeaderAdmin from "../components/HeaderAdmin";
 import { MdAdd } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchProducts } from "../redux/getNpaySlice";
+import { deleteProduct, fetchProducts } from "../redux/getNpaySlice";
 import EditProduct from "./EditProduct";
 import AddProduct from "./AddProduct";
 
@@ -17,6 +17,22 @@ const Dashboard = () => {
   useEffect(() => {
     dispatch(fetchProducts());
   }, [dispatch]);
+
+  //Delete Product
+  const handleDelete = (id) => {
+    dispatch(deleteProduct(id));
+  };
+
+  // //Edit Products
+  const [productEdit, setProductEdit] = useState(null);
+
+  // const handleEdit = (product) => {
+  //   setProductEdit(product);
+  // };
+
+  // const cancelUpdate = () => {
+  //   setProductEdit(null);
+  // };
 
   return (
     <div>
@@ -123,7 +139,10 @@ const Dashboard = () => {
                             </li>
                           </ul>
                           <div className="py-1">
-                            <p className="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">
+                            <p
+                              onClick={() => handleDelete(newProduct.id)}
+                              className="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
+                            >
                               Delete
                             </p>
                           </div>
