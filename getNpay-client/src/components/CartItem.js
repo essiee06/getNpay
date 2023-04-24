@@ -116,14 +116,6 @@ const CartItem = () => {
                   <td class="px-6 py-4 font-semibold text-gray-900 dark:text-white">
                     ₱{item.quantity * item.price}
                   </td>
-                  {/* <td class="px-6 py-4">
-                    <p
-                      onClick={() => dispatch(deleteItem(item._id))}
-                      class="font-medium text-red-600 dark:text-red-500 hover:to-blue-400"
-                    >
-                      Remove
-                    </p>
-                  </td> */}
                 </tr>
               ))}
             </tbody>

@@ -17,7 +17,6 @@ import LoginAdmin from "./adminpage/LoginAdmin";
 import Dashboard from "./adminpage/Dashboard";
 import AdminProfile from "./adminpage/AdminProfile";
 import Profile from "./pages/Profile";
-import AddProduct from "./adminpage/AddProduct";
 
 const Layout = () => {
   return (
@@ -75,10 +74,6 @@ const router = createBrowserRouter([
       {
         path: "/profile",
         element: <Profile />,
-      },
-      {
-        path: "/admin/addproduct",
-        element: <AddProduct />,
       },
     ],
   },
