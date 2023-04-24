@@ -30,7 +30,7 @@ const Register = () => {
       );
       const user = userCredential.user;
       await addUserToFirestore(user);
-      navigate("/loginName");
+      navigate("/");
     } catch (error) {
       alert(error.message);
     }
