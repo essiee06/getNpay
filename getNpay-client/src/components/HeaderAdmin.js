@@ -1,8 +1,53 @@
 import React from "react";
 import { logo3, profile } from "../assets";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { GoogleAuthProvider, getAuth, signOut } from "firebase/auth";
+import { removeUser } from "../redux/getNpaySlice";
+import { useDispatch } from "react-redux";
+import { useEffect, useState } from "react";
+import { getFirestore, doc, onSnapshot } from "firebase/firestore";
 
 const HeaderAdmin = () => {
+  const firestore = getFirestore();
+  const auth = getAuth();
+  const dispatch = useDispatch();
+  const navigate = useNavigate("");
+  const [email, setEmail] = useState("");
+
+  useEffect(() => {
+    // Replace "documentID" with the actual document ID you want to fetch
+    const adminDocRef = doc(firestore, "admins", "jwqCifCtEByisTsur8xC");
+
+    const unsubscribe = onSnapshot(adminDocRef, (doc) => {
+      if (doc.exists() && doc.data().email) {
+        setEmail(doc.data().email);
+      } else {
+        console.log("Document not found or email not defined");
+      }
+    });
+
+    // Clean up the listener when the component unmounts
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
+  const handleSignOut = () => {
+    signOut(auth)
+      .then(() => {
+        // Sign-out successful.
+        // toast.success("Log Out Successfully!");
+        dispatch(removeUser());
+        setTimeout(() => {
+          navigate("/");
+        }, 1500);
+      })
+
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
   return (
     <nav className="fixed top-0 z-50 w-full bg-[#7aa5f9] border-b-[1px]">
       <div className="py-3 lg:px-5 lg:pl-3">
@@ -96,7 +141,12 @@ const HeaderAdmin = () => {
                     className="text-sm font-medium text-gray-900 truncate dark:text-gray-300"
                     role="none"
                   >
-                    neil.sims@flowbite.com
+                    <p
+                      className="text-sm font-medium text-gray-900 truncate dark:text-gray-300"
+                      role="none"
+                    >
+                      {email}
+                    </p>
                   </p>
                 </div>
                 <ul className="py-1" role="none">
@@ -121,7 +171,8 @@ const HeaderAdmin = () => {
 
                   <li>
                     <a
-                      href="#"
+                      onClick={handleSignOut}
+                      href="/login/admin"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
                       role="menuitem"
                     >

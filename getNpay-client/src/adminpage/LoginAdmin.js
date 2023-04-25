@@ -27,7 +27,6 @@ const Login = () => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
-        navigate("/admin/dashboard");
       }
     });
 
@@ -42,15 +41,17 @@ const Login = () => {
     const q = query(adminRef, where("email", "==", loginEmail));
     const querySnapshot = await getDocs(q);
     let validCredentials = false;
+    let adminDocId = ""; // Add this line to store the document ID
 
     querySnapshot.forEach((doc) => {
       if (doc.data().password === loginPassword) {
         validCredentials = true;
+        adminDocId = doc.id; // Store the document ID
       }
     });
 
     if (validCredentials) {
-      navigate("/admin/dashboard");
+      navigate("/admin/dashboard", { state: { adminDocId } }); // Pass the document ID as state
     } else {
       alert("Invalid credentials.");
     }
