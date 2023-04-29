@@ -1,4 +1,7 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { ref, onValue, off } from "firebase/database";
+import { auth, db, rtdb } from "../firebase.config";
+import { collection, query, where, getDocs } from "firebase/firestore";
 import { cartImg, logo3, defaultAvatar, shoppingcart } from "../assets/index";
 import { useSelector } from "react-redux";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -6,21 +9,89 @@ import { GoogleAuthProvider, getAuth, signOut } from "firebase/auth";
 import { removeUser } from "../redux/getNpaySlice";
 import { useDispatch } from "react-redux";
 
-const Header = () => {
+const Header = ({ products }) => {
+  // //fetching data rfid
+  // const [products, setProducts] = useState([]);
+
+  // const fetchProductsByRfid = async (rfidList) => {
+  //   const productsRef = collection(db, "Products");
+  //   const productsWithRfid = [];
+
+  //   try {
+  //     for (let rfid of rfidList) {
+  //       console.log("Searching for product with RFID:", rfid);
+  //       const q = query(productsRef, where("RFIDnum", "array-contains", rfid));
+  //       const querySnapshot = await getDocs(q);
+
+  //       querySnapshot.forEach((doc) => {
+  //         console.log("Found product:", doc.data());
+  //         const product = { ...doc.data(), id: doc.id };
+
+  //         // Check if product's RFID tags are in the RFID list and if it has not already been added
+  //         const hasAllRfidTags = product.RFIDnum.every((tag) =>
+  //           rfidList.includes(tag)
+  //         );
+  //         const notAddedYet = !productsWithRfid.some(
+  //           (existingProduct) => existingProduct.id === product.id
+  //         );
+
+  //         if (hasAllRfidTags && notAddedYet) {
+  //           productsWithRfid.push(product);
+  //         }
+  //       });
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching products by RFID:", error);
+  //   }
+
+  //   // Sort products alphabetically by their product name
+  //   productsWithRfid.sort((a, b) => a.productName.localeCompare(b.productName));
+  //   console.log("Fetched products:", JSON.stringify(productsWithRfid, null, 2));
+
+  //   setProducts(productsWithRfid);
+  // };
+
+  // useEffect(() => {
+  //   const rfidRef = ref(
+  //     rtdb,
+  //     "UsersData/cLmwoz9mYfeVQv9u2qdlskMplRy1/data_uploads/rfidtag_id"
+  //   );
+  //   const handleNewRfid = (snapshot) => {
+  //     const data = snapshot.val();
+
+  //     if (data === null) {
+  //       console.log("No RFID tags found");
+  //       setProducts([]);
+  //     } else {
+  //       const rfidList = Object.values(data);
+  //       console.log(rfidList);
+  //       fetchProductsByRfid(rfidList);
+  //     }
+  //   };
+
+  //   onValue(rfidRef, handleNewRfid);
+
+  //   return () => {
+  //     off(rfidRef);
+  //   };
+  // }, []);
+
+  // //ends here
+
   const productData = useSelector((state) => state.getNpay.productData);
   const userInfo = useSelector((state) => state.getNpay.userInfo);
   console.log(userInfo);
-  const auth = getAuth();
+  // const auth = getAuth();
   const provider = new GoogleAuthProvider();
   const dispatch = useDispatch();
   const navigate = useNavigate("");
 
   const handleSignOut = () => {
+    auth.signOut().then(() => {});
     signOut(auth)
       .then(() => {
         // Sign-out successful.
-        // toast.success("Log Out Successfully!");
-        dispatch(removeUser());
+
         setTimeout(() => {
           navigate("/");
         }, 1500);
@@ -33,9 +104,9 @@ const Header = () => {
 
   return (
     <nav className="fixed top-0 z-50 w-full bg-[#7aa5f9] border-b-[1px]">
-      <div class=" px-5 py-3 lg:px-5 lg:pl-5">
-        <div class="max-w-screen-xl mx-auto  flex items-center justify-between">
-          {/* <div className="max-w-screen-xl h-full mx-auto flex items-center justify-between"> */}
+      <div className=" px-5 py-3 lg:px-5 lg:pl-5">
+        <div className="max-w-screen-xl mx-auto  flex items-center justify-between">
+          {/* <div classNameName="max-w-screen-xl h-full mx-auto flex items-center justify-between"> */}
           <NavLink to="/">
             <img className="h-12 mr-5" src={logo3} alt="Logo" />
           </NavLink>
@@ -51,7 +122,7 @@ const Header = () => {
                 <span className="sr-only">Notifications</span>
 
                 <div className="absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 border-2 border-white rounded-full -top-2 -right-2 dark:border-gray-900">
-                  {productData.length}
+                  {products.length}
                 </div>
               </button>
             </NavLink>
@@ -84,7 +155,7 @@ const Header = () => {
                   <div className="px-4 py-3" role="none">
                     {userInfo && (
                       <p className="text-sm text-gray-900 dark:text-white">
-                        {userInfo.name}
+                        {userInfo.firstName}
                       </p>
                     )}
                     {userInfo && (

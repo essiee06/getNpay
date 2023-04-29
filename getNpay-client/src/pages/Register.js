@@ -18,6 +18,9 @@ const Register = () => {
   const [registerEmail, setRegisterEmail] = useState("");
   const [registerPassword, setRegisterPassword] = useState("");
   const [registerConfPass, setRegisterConfPass] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
+
   const navigate = useNavigate();
 
   const register = async (e) => {
@@ -52,6 +55,7 @@ const Register = () => {
       lastName: registerLastName,
       address: registerAddress,
       phoneNumber: registerPhoneNumber,
+      password: registerPassword,
     };
     await setDoc(userRef, userData);
   };

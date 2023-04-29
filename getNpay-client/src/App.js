@@ -17,6 +17,8 @@ import LoginAdmin from "./adminpage/LoginAdmin";
 import Dashboard from "./adminpage/Dashboard";
 import AdminProfile from "./adminpage/AdminProfile";
 import Profile from "./pages/Profile";
+import ProtectedRoute from "./components/ProtectedRoute";
+import ProtectedRouteAdmin from "./components/ProtectedRouteAdmin";
 
 const Layout = () => {
   return (
@@ -45,7 +47,11 @@ const router = createBrowserRouter([
       },
       {
         path: "/cart",
-        element: <Cart />,
+        element: (
+          <ProtectedRoute>
+            <Cart />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "/",
@@ -65,15 +71,27 @@ const router = createBrowserRouter([
       },
       {
         path: "/admin/dashboard",
-        element: <Dashboard />,
+        element: (
+          <ProtectedRouteAdmin>
+            <Dashboard />
+          </ProtectedRouteAdmin>
+        ),
       },
       {
         path: "/admin/profile",
-        element: <AdminProfile />,
+        element: (
+          <ProtectedRouteAdmin>
+            <AdminProfile />
+          </ProtectedRouteAdmin>
+        ),
       },
       {
         path: "/profile",
-        element: <Profile />,
+        element: (
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        ),
       },
     ],
   },

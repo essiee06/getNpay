@@ -1,8 +1,17 @@
-import React from "react";
+import React, { useState } from "react";
 import { profile } from "../assets";
 import Header from "../components/Header";
+import {
+  getStorage,
+  ref,
+  uploadBytesResumable,
+  getDownloadURL,
+} from "firebase/storage";
+import { auth, db, storage } from "../firebase.config";
 
 const Profile = () => {
+  const [file, setFile] = useState("");
+
   return (
     <div className="bg-background  bg-no-repeat bg-cover bg-center">
       <Header />
@@ -20,7 +29,7 @@ const Profile = () => {
                 <img
                   className="mb-4 rounded-full w-28 h-28 sm:mb-0 xl:mb-4 2xl:mb-0"
                   src={profile}
-                  alt="Jese picture"
+                  alt="Profile Picture"
                 />
                 <div>
                   <h3 className="mb-1 text-xl font-bold text-gray-900 dark:text-white">
@@ -48,6 +57,7 @@ const Profile = () => {
                     </label>
 
                     <input
+                      onChange={(e) => setFile(e.target.files[0])}
                       id="file"
                       class="absolute w-full  h-full"
                       type="file"
@@ -172,7 +182,7 @@ const Profile = () => {
                       Current password
                     </label>
                     <input
-                      type="text"
+                      type="password"
                       name="current-password"
                       id="current-password"
                       className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
@@ -275,7 +285,7 @@ const Profile = () => {
                       Confirm password
                     </label>
                     <input
-                      type="text"
+                      type="password"
                       name="confirm-password"
                       id="confirm-password"
                       className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"

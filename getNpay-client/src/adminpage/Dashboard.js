@@ -40,6 +40,7 @@ const Dashboard = () => {
       <section className="bg-white mt-16 dark:bg-gray-900 p-5 sm:p-5">
         <div className="mx-auto max-w-screen-xl px-4 lg:px-12">
           {/* <!-- Start coding here --> */}
+
           <div className="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
             <div className="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
               <div className="w-full md:w-1/2">
@@ -96,12 +97,18 @@ const Dashboard = () => {
                       </th>
                       <td className="px-4 py-3">
                         <ul>
-                          {newProduct.product.RFIDnum.map((rfid, index) => (
-                            <li key={index}>{rfid}</li>
-                          ))}
+                          {Array.isArray(newProduct.product.RFIDnum) ? (
+                            newProduct.product.RFIDnum.map((rfid, index) => (
+                              <li key={index}>{rfid}</li>
+                            ))
+                          ) : (
+                            <li>{newProduct.product.RFIDnum}</li>
+                          )}
                         </ul>
                       </td>
-                      <td className="px-4 py-3">{newProduct.product.RFIDnum.length}</td>
+                      <td className="px-4 py-3">
+                        {newProduct.product.RFIDnum.length}
+                      </td>
                       <td className="px-4 py-3">
                         {newProduct.product.category}
                       </td>
