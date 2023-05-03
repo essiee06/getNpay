@@ -1,13 +1,77 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { auth, db } from "../firebase.config";
 // import Dashboard from "./Dashboard";
 import HeaderAdmin from "../components/HeaderAdmin";
 import { profile } from "../assets";
+import { onAuthStateChanged } from "firebase/auth";
 
 const AdminProfile = () => {
+  const [admins, setAdmin] = useState(null);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [currentpassword, setCurrentPassword] = useState("");
+  const [newpassword, setNewPassword] = useState("");
+  const [confirmpassword, setConfirmPassword] = useState("");
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setAdmin(currentUser);
+
+      const fetchAdminData = async () => {
+        if (admins) {
+          const docRef = doc(db, "admins", admins.uid);
+          const docSnap = await getDoc(docRef);
+
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            setFirstName(data.firstName || "");
+            setLastName(data.lastName || "");
+            setCurrentPassword(data.currentpassword || "");
+            setNewPassword(data.newpassword || "");
+            setConfirmPassword(data.confirmpassword || "");
+          } else {
+            console.log("No such document!");
+          }
+        }
+      };
+
+      fetchAdminData();
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [admins]);
+
+  const onSubmit = async (e) => {
+    e.preventDefault();
+
+    if (admins) {
+      const docRef = doc(db, "admins", admins.uid);
+      try {
+        await setDoc(
+          docRef,
+          {
+            firstName,
+            lastName,
+            currentpassword,
+            newpassword,
+            confirmpassword,
+          },
+          { merge: true }
+        );
+        console.log("User data updated");
+      } catch (error) {
+        console.error("Error updating user data: ", error);
+      }
+    }
+  };
+
   return (
-    <div>
+    <div className="bg-background  bg-no-repeat bg-cover bg-center">
       <HeaderAdmin />
-      <div>
+      <div className="min-h-screen max-w-screen-xl mx-auto flex-1 justify-center">
         <div className="bg-background bg-no-repeat bg-cover max-w-screen-xl mx-auto min-h-screen  bg-center">
           <div className="grid  grid-cols-1 px-4 pt-6 xl:grid-cols-3 xl:gap-4 dark:bg-gray-900">
             <div className="mt-12 pt-5 col-span-full xl:mb-2">
@@ -79,6 +143,8 @@ const AdminProfile = () => {
                         id="first-name"
                         className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                         placeholder="Bonnie"
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
                         required
                       />
                     </div>
@@ -95,6 +161,8 @@ const AdminProfile = () => {
                         id="last-name"
                         className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                         placeholder="Green"
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
                         required
                       />
                     </div>
@@ -129,6 +197,8 @@ const AdminProfile = () => {
                         id="current-password"
                         className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                         placeholder="••••••••"
+                        value={currentpassword}
+                        onChange={(e) => setCurrentPassword(e.target.value)}
                         required
                       />
                     </div>
@@ -146,6 +216,8 @@ const AdminProfile = () => {
                         id="password"
                         className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                         placeholder="••••••••"
+                        value={newpassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
                         required
                       />
                       <div
@@ -232,6 +304,8 @@ const AdminProfile = () => {
                         id="confirm-password"
                         className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                         placeholder="••••••••"
+                        value={confirmpassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
                         required
                       />
                     </div>
@@ -239,6 +313,7 @@ const AdminProfile = () => {
                       <button
                         className="text-black bg-blue hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
                         type="submit"
+                        onClick={onSubmit}
                       >
                         Save all
                       </button>

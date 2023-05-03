@@ -1,8 +1,81 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { auth, db } from "../firebase.config";
+import { onAuthStateChanged } from "firebase/auth";
 import { profile } from "../assets";
 import Header from "../components/Header";
 
 const Profile = () => {
+  const [user, setUser] = useState(null);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [address, setAddress] = useState("");
+  const [email, setEmail] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [currentpassword, setCurrentPassword] = useState("");
+  const [newpassword, setNewPassword] = useState("");
+  const [confirmpassword, setConfirmPassword] = useState("");
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+
+      const fetchUserData = async () => {
+        if (user) {
+          const docRef = doc(db, "users", user.uid);
+          const docSnap = await getDoc(docRef);
+
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            setFirstName(data.firstName || "");
+            setLastName(data.lastName || "");
+            setAddress(data.address || "");
+            setEmail(data.email || "");
+            setPhoneNumber(data.phoneNumber || "");
+            setCurrentPassword(data.currentpassword || "");
+            setNewPassword(data.newpassword || "");
+            setConfirmPassword(data.confirmpassword || "");
+          } else {
+            console.log("No such document!");
+          }
+        }
+      };
+
+      fetchUserData();
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [user]);
+
+  const onSubmit = async (e) => {
+    e.preventDefault();
+
+    if (user) {
+      const docRef = doc(db, "users", user.uid);
+      try {
+        await setDoc(
+          docRef,
+          {
+            firstName,
+            lastName,
+            address,
+            email,
+            phoneNumber,
+            currentpassword,
+            newpassword,
+            confirmpassword,
+          },
+          { merge: true }
+        );
+        console.log("User data updated");
+      } catch (error) {
+        console.error("Error updating user data: ", error);
+      }
+    }
+  };
+
   return (
     <div className="bg-background  bg-no-repeat bg-cover bg-center">
       <Header />
@@ -78,6 +151,8 @@ const Profile = () => {
                       id="first-name"
                       className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                       placeholder="Bonnie"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
                       required
                     />
                   </div>
@@ -94,6 +169,8 @@ const Profile = () => {
                       id="last-name"
                       className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                       placeholder="Green"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
                       required
                     />
                   </div>
@@ -111,6 +188,8 @@ const Profile = () => {
                       id="address"
                       className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                       placeholder="e.g. California"
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
                       required
                     />
                   </div>
@@ -127,6 +206,8 @@ const Profile = () => {
                       id="email"
                       className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                       placeholder="example@company.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                       required
                     />
                   </div>
@@ -143,6 +224,8 @@ const Profile = () => {
                       id="phone-number"
                       className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                       placeholder="e.g. +(12)3456 789"
+                      value={phoneNumber}
+                      onChange={(e) => setPhoneNumber(e.target.value)}
                       required
                     />
                   </div>
@@ -177,6 +260,8 @@ const Profile = () => {
                       id="current-password"
                       className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                       placeholder="••••••••"
+                      value={currentpassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
                       required
                     />
                   </div>
@@ -194,6 +279,8 @@ const Profile = () => {
                       id="password"
                       className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                       placeholder="••••••••"
+                      value={newpassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
                       required
                     />
                     <div
@@ -280,6 +367,8 @@ const Profile = () => {
                       id="confirm-password"
                       className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                       placeholder="••••••••"
+                      value={confirmpassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
                       required
                     />
                   </div>
@@ -287,6 +376,7 @@ const Profile = () => {
                     <button
                       className="text-black bg-blue hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
                       type="submit"
+                      onClick={onSubmit}
                     >
                       Save all
                     </button>

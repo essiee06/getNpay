@@ -17,6 +17,7 @@ import LoginAdmin from "./adminpage/LoginAdmin";
 import Dashboard from "./adminpage/Dashboard";
 import AdminProfile from "./adminpage/AdminProfile";
 import Profile from "./pages/Profile";
+import AdminRegister from "./adminpage/AdminRegister";
 
 const Layout = () => {
   return (
@@ -62,6 +63,10 @@ const router = createBrowserRouter([
       {
         path: "/login/admin",
         element: <LoginAdmin />,
+      },
+      {
+        path: "/admin/register",
+        element: <AdminRegister />,
       },
       {
         path: "/admin/dashboard",
