@@ -52,6 +52,8 @@ const Register = () => {
       lastName: registerLastName,
       address: registerAddress,
       phoneNumber: registerPhoneNumber,
+      password: registerPassword,
+      confirmPassword: registerConfPass,
     };
     await setDoc(userRef, userData);
   };
@@ -139,7 +141,7 @@ const Register = () => {
                     Phone number
                   </label>
                   <input
-                    type="tel"
+                    type="text"
                     id="phone"
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     placeholder="123-45-678"
