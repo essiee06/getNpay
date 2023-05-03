@@ -17,7 +17,7 @@ app.post("/pay", async (req, res) => {
   await Stripe.charges.create({
     source: req.body.token.id,
     amount: req.body.amount,
-    currency: "usd",
+    currency: "php",
   });
 });
 

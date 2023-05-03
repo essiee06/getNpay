@@ -1,16 +1,13 @@
 import React from "react";
 import { logo3, profile } from "../assets";
 import { NavLink, useNavigate } from "react-router-dom";
-import { GoogleAuthProvider, getAuth, signOut } from "firebase/auth";
-import { removeUser } from "../redux/getNpaySlice";
-import { useDispatch } from "react-redux";
+import { getAuth, signOut } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { getFirestore, doc, onSnapshot } from "firebase/firestore";
 
 const HeaderAdmin = () => {
   const firestore = getFirestore();
   const auth = getAuth();
-  const dispatch = useDispatch();
   const navigate = useNavigate("");
   const [email, setEmail] = useState("");
 
@@ -33,11 +30,11 @@ const HeaderAdmin = () => {
   }, []);
 
   const handleSignOut = () => {
+    auth.signOut().then(() => {});
     signOut(auth)
       .then(() => {
         // Sign-out successful.
-        // toast.success("Log Out Successfully!");
-        dispatch(removeUser());
+
         setTimeout(() => {
           navigate("/");
         }, 1500);
@@ -109,6 +106,7 @@ const HeaderAdmin = () => {
             </div>
           </form>
           <div></div>
+
           <div className="flex items-center">
             <div className="flex items-center ml-3">
               <div>

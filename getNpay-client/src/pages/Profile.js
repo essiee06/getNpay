@@ -8,14 +8,26 @@ import {
   getDownloadURL,
 } from "firebase/storage";
 import { auth, db, storage } from "../firebase.config";
+import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
+  let navigate = useNavigate();
+
+  auth.onAuthStateChanged((user) => {
+    if (!auth.currentUser) {
+      navigate("/");
+    }
+  });
   const [file, setFile] = useState("");
 
   return (
-    <div className="bg-background  bg-no-repeat bg-cover bg-center">
-      <Header />
-      <div className="min-h-screen max-w-screen-xl mx-auto flex-1 justify-center">
+    <div
+      id="Edit-Profile"
+      tabIndex="-1"
+      aria-hidden="true"
+      className="fixed top-0 left-0 right-0 z-50 items-center justify-center hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full"
+    >
+      <div className=" flex-1 justify-center">
         <div className="grid  grid-cols-1 px-4 pt-6 xl:grid-cols-3 xl:gap-4 dark:bg-gray-900">
           <div className="mb-4 mt-12 pt-5 col-span-full xl:mb-2">
             <h1 className="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">

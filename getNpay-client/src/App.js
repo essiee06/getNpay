@@ -1,5 +1,4 @@
-// import Header from "./components/Header";
-// import Products from "./components/Products";
+import "@stripe/stripe-js";
 import Home from "./pages/Home";
 import {
   createBrowserRouter,
@@ -17,16 +16,12 @@ import LoginAdmin from "./adminpage/LoginAdmin";
 import Dashboard from "./adminpage/Dashboard";
 import AdminProfile from "./adminpage/AdminProfile";
 import Profile from "./pages/Profile";
-import ProtectedRoute from "./components/ProtectedRoute";
-import ProtectedRouteAdmin from "./components/ProtectedRouteAdmin";
 
 const Layout = () => {
   return (
     <div>
-      {/* <Header /> */}
       <ScrollRestoration />
       <Outlet />
-      {/* <Footer /> */}
     </div>
   );
 };
@@ -47,11 +42,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/cart",
-        element: (
-          <ProtectedRoute>
-            <Cart />
-          </ProtectedRoute>
-        ),
+        element: <Cart />,
       },
       {
         path: "/",
@@ -71,27 +62,15 @@ const router = createBrowserRouter([
       },
       {
         path: "/admin/dashboard",
-        element: (
-          <ProtectedRouteAdmin>
-            <Dashboard />
-          </ProtectedRouteAdmin>
-        ),
+        element: <Dashboard />,
       },
       {
         path: "/admin/profile",
-        element: (
-          <ProtectedRouteAdmin>
-            <AdminProfile />
-          </ProtectedRouteAdmin>
-        ),
+        element: <AdminProfile />,
       },
       {
         path: "/profile",
-        element: (
-          <ProtectedRoute>
-            <Profile />
-          </ProtectedRoute>
-        ),
+        element: <Profile />,
       },
     ],
   },

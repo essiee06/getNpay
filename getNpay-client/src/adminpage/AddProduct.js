@@ -1,97 +1,83 @@
-import React, { useState, useEffect } from "react";
-
-import { get, ref, getDatabase, onValue } from "firebase/database";
-import { app, db, storage } from "../firebase.config";
-import { getDownloadURL, uploadBytesResumable } from "firebase/storage";
+import React, { useState } from "react";
+import { collection, addDoc } from "firebase/firestore";
+import {
+  ref,
+  uploadBytesResumable,
+  getDownloadURL,
+  getStorage,
+} from "firebase/storage";
+import { updateDoc, doc } from "firebase/firestore";
+import { db } from "../firebase.config";
+import { useNavigate } from "react-router-dom";
 
 const AddProduct = () => {
   const [productName, setProductName] = useState("");
   const [RFIDnum, setRFIDnum] = useState([]);
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState("");
-  const [imageproduct, setImageProduct] = useState(null);
+  const [file, setFile] = useState(null);
+  const [fileName, setFileName] = useState("No file chosen");
 
-  const [imageError, setImageError] = useState("");
-  const [successMsg, setSuccessMsg] = useState("");
-  const [uploadError, setUploadError] = useState("");
+  const handleProductNameChange = (e) => setProductName(e.target.value);
+  const handleRFIDnumChange = (e) => setRFIDnum([...RFIDnum, e.target.value]);
+  const handlePriceChange = (e) => setPrice(e.target.value);
+  const handleCategoryChange = (e) => setCategory(e.target.value);
 
-  // ADD PRODUCT EVENT
-  const handleAddProduct = async (e) => {
+  const navigate = useNavigate("");
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!productName || !RFIDnum || !price || !category || !imageproduct) {
-      alert("Please fill all fields");
-      return;
-    }
 
     try {
-      // Upload product image to Firebase Storage
-      const storageRef = storage.ref();
-      const fileRef = storageRef.child(`product-images/${imageproduct.name}`);
-      await fileRef.put(imageproduct);
+      const docRef = await addDoc(collection(db, "Products"), {
+        productName: productName,
+        RFIDnum: RFIDnum,
+        price: price,
+        category: category,
+      });
 
-      // Get the download URL of the uploaded image
-      const imgUrl = await fileRef.getDownloadURL();
+      if (file) {
+        const storage = getStorage();
+        const storageRef = ref(
+          storage,
+          `productImage/${docRef.id}/${file.name}`
+        );
 
-      // Add the product to the Firestore collection "Products"
-      const newProduct = {
-        productName,
-        RFIDnum: parseInt(RFIDnum),
-        price: parseFloat(price),
-        category,
-        imgUrl,
-      };
-      await db.collection("Products").add(newProduct);
+        const uploadTask = uploadBytesResumable(storageRef, file);
 
-      setSuccessMsg("Product added successfully");
+        uploadTask.on(
+          "state_changed",
+          (snapshot) => {
+            // Progress function
+            // You can use this to provide feedback on upload progress to the user
+          },
+          (error) => {
+            // Error function
+            console.log(error);
+          },
+          () => {
+            // Complete function
+            getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+              const productRef = doc(db, "Products", docRef.id);
+              updateDoc(productRef, {
+                imageProduct: downloadURL,
+              });
+            });
+          }
+        );
+      }
+
       setProductName("");
-      setRFIDnum("");
+      setRFIDnum([]);
       setPrice("");
       setCategory("");
-      setImageProduct(null);
-      setImageError("");
-      setUploadError("");
+      setFile(null);
+      setFileName("No file chosen");
+      setTimeout(() => {
+        navigate("/admin/dashboard");
+      }, 1500);
     } catch (error) {
-      console.error(error);
-      setUploadError(error.message);
-    }
-  };
-
-  const types = ["image/jpg", "image/jpeg", "image/png", "image/PNG"];
-  const handleProductImg = (e) => {
-    const selectedFile = e.target.files[0];
-    if (selectedFile) {
-      if (types.includes(selectedFile.type)) {
-        setImageProduct(selectedFile);
-        setImageError("");
-      } else {
-        setImageProduct(null);
-        setImageError("Please select a valid file type (png or jpg");
-      }
-    } else {
-      console.log("Please select your file");
-    }
-  };
-
-  //Fetching data from RFID
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    // Add async keyword here
-    const db = getDatabase(app);
-    const rfidRef = ref(
-      db,
-      "UsersData/cLmwoz9mYfeVQv9u2qdlskMplRy1/data_uploads/rfidtag_id"
-    );
-    const snapshot = await get(rfidRef); // Change onValue to get
-    const data = snapshot.val();
-    console.log(data); // Add this line to log the data
-    if (data) {
-      const rfidTags = Object.values(data);
-      setRFIDnum(rfidTags);
-    } else {
-      setRFIDnum([]);
+      console.error("Error adding document: ", error);
     }
   };
 
@@ -104,13 +90,9 @@ const AddProduct = () => {
     >
       <div className="relative w-full max-w-2xl max-h-full">
         {/* <!-- Modal content --> */}
-        {successMsg && (
-          <>
-            <div>{successMsg}</div>
-          </>
-        )}
+
         <form
-          onSubmit={handleAddProduct}
+          onSubmit={handleSubmit}
           className="relative bg-white rounded-lg shadow dark:bg-gray-700"
         >
           {/* <!-- Modal header --> */}
@@ -149,14 +131,14 @@ const AddProduct = () => {
                   Product Name
                 </label>
                 <input
-                  onChange={(e) => setProductName(e.target.value)}
-                  value={productName}
                   type="text"
                   name="product-name"
                   id="product-name"
                   className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   placeholder="e.g Mega Sardines"
                   required
+                  value={productName}
+                  onChange={handleProductNameChange}
                 />
               </div>
               <div className="col-span-6 sm:col-span-3">
@@ -166,11 +148,7 @@ const AddProduct = () => {
                 >
                   RFID Tag UID No.:
                 </label>
-                <ul className="list-disc pl-5">
-                  {RFIDnum.map((rfidTag, index) => (
-                    <li key={index}>{rfidTag}</li>
-                  ))}
-                </ul>
+                <ul className="list-disc pl-5"></ul>
               </div>
 
               <div className="col-span-6 sm:col-span-3">
@@ -181,14 +159,14 @@ const AddProduct = () => {
                   Price
                 </label>
                 <input
-                  onChange={(e) => setPrice(e.target.value)}
-                  value={price}
                   type="number"
                   name="price"
                   id="price"
                   className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   placeholder="e.g. ₱5.00"
                   required
+                  value={price}
+                  onChange={handlePriceChange}
                 />
               </div>
               <div className="col-span-6 sm:col-span-3">
@@ -199,31 +177,28 @@ const AddProduct = () => {
                   Select an option
                 </label>
                 <select
-                  onChange={(e) => setCategory(e.target.value)}
-                  value={category}
                   type="text"
                   name="category"
                   id="category"
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  value={category}
+                  onChange={handleCategoryChange}
                 >
-                  <option selected>Choose a category</option>
+                  <option value="">Choose a category</option>
                   <option value="Fruits & Vegetables">
                     Fruits & Vegetables
                   </option>
-                  <option value="Snacks & Beverages">
-                    {" "}
-                    Snacks & Beverages
-                  </option>
+                  <option value="Snacks & Beverages">Snacks & Beverages</option>
                   <option value="Canned Goods">Canned Goods</option>
                   <option value="Dairy">Dairy</option>
                   <option value="Fish & Meat">Fish & Meat</option>
                   <option value="Pasta, Rice & Cereal">
                     Pasta, Rice & Cereal
                   </option>
-                  <option value="householdcleHousehold & Cleaning Suppliesaning">
+                  <option value="Household & Cleaning Suppliesaning">
                     Household & Cleaning Supplies
                   </option>
-                  <option value="personalandhealth">
+                  <option value=" Personal Care & Health Care">
                     Personal Care & Health Care
                   </option>
                 </select>
@@ -236,19 +211,15 @@ const AddProduct = () => {
                   Upload Image
                 </label>
                 <input
-                  onChange={handleProductImg}
-                  // value={imageproduct}
                   id="file"
                   type="file"
+                  onChange={(e) => {
+                    setFile(e.target.files[0]);
+                    setFileName(e.target.files[0].name);
+                  }}
                   className="block w-full mb-5 text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
                 />
 
-                {imageError && (
-                  <>
-                    <br></br>
-                    <div className="text-black"> {imageError}</div>
-                  </>
-                )}
                 <br></br>
               </div>
             </div>
@@ -263,12 +234,6 @@ const AddProduct = () => {
             </button>
           </div>
         </form>
-        {uploadError && (
-          <>
-            <br></br>
-            <div>uploadError</div> <br></br>
-          </>
-        )}
       </div>
     </div>
   );
