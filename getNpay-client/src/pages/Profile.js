@@ -4,8 +4,17 @@ import { auth, db } from "../firebase.config";
 import { onAuthStateChanged } from "firebase/auth";
 import { profile } from "../assets";
 import Header from "../components/Header";
+import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
+  // let navigate = useNavigate();
+
+  // auth.onAuthStateChanged((user) => {
+  //   if (!auth.currentUser) {
+  //     navigate("/");
+  //   }
+  // });
+
   const [user, setUser] = useState(null);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -93,7 +102,7 @@ const Profile = () => {
                 <img
                   className="mb-4 rounded-full w-28 h-28 sm:mb-0 xl:mb-4 2xl:mb-0"
                   src={profile}
-                  alt="Jese picture"
+                  alt="profile"
                 />
                 <div>
                   <h3 className="mb-1 text-xl font-bold text-gray-900 dark:text-white">

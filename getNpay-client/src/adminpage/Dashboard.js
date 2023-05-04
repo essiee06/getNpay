@@ -1,37 +1,58 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import HeaderAdmin from "../components/HeaderAdmin";
-import { MdAdd } from "react-icons/md";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchProducts } from "../redux/getNpaySlice";
-import EditProduct from "./EditProduct";
+import { MdAdd, MdDelete, MdEdit } from "react-icons/md";
+import "react-toastify/dist/ReactToastify.css";
+import { db } from "../firebase.config";
+import { collection, deleteDoc, doc, getDocs } from "firebase/firestore";
 import AddProduct from "./AddProduct";
+import EditProduct from "./EditProduct";
 
 const Dashboard = () => {
-  const dispatch = useDispatch();
+  const [products, setProducts] = useState([]);
 
-  // //VIEW PRODUCTS
-  const data = useSelector((state) => state.getNpay.productsArray);
-  console.log(data);
-
-  //fetch products
   useEffect(() => {
-    dispatch(fetchProducts());
-  }, [dispatch]);
+    const fetchProducts = async () => {
+      const productsCollection = collection(db, "Products");
+      const productsSnapshot = await getDocs(productsCollection);
+      setProducts(
+        productsSnapshot.docs.map((doc) => {
+          return { id: doc.id, ...doc.data() };
+        })
+      );
+    };
 
+    fetchProducts();
+  }, []);
+
+  const handleDelete = async (productId) => {
+    if (window.confirm("Are you sure to delete the product?")) {
+      try {
+        // Delete product from database
+        await deleteDoc(doc(db, "Products", productId));
+
+        // Update products state by removing the deleted product
+
+        setProducts(products.filter((product) => product.id !== productId));
+      } catch (error) {
+        console.error("Error deleting product: ", error);
+      }
+    }
+  };
   return (
     <div>
       <HeaderAdmin />
       <section className="bg-white mt-16 dark:bg-gray-900 p-5 sm:p-5">
         <div className="mx-auto max-w-screen-xl px-4 lg:px-12">
           {/* <!-- Start coding here --> */}
+
           <div className="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
             <div className="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
               <div className="w-full md:w-1/2">
-                <div classNameName="mb-4 pt-5 col-span-full xl:mb-2">
-                  <h1 classNameName="text-3xl font-semibold text-gray-900 sm:text-2xl dark:text-white">
+                <div className="mb-4 pt-5 col-span-full xl:mb-2">
+                  <h1 className="text-3xl font-semibold text-gray-900 sm:text-2xl dark:text-white">
                     Dashboard
                   </h1>
-                </div>
+                </div>{" "}
               </div>
               <div className="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
                 <p
@@ -49,85 +70,58 @@ const Dashboard = () => {
               <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                 <thead className="text-xs text-gray-700 uppercase bg-[#d6e6ee] dark:bg-gray-700 dark:text-gray-400">
                   <tr>
-                    <th scope="col" className="px-4 py-3">
-                      Product name
-                    </th>
-                    <th scope="col" className="px-4 py-3">
-                      RFID Tag No.
-                    </th>
-                    <th scope="col" className="px-4 py-3">
-                      Quantity
-                    </th>
-                    <th scope="col" className="px-4 py-3">
-                      Category
-                    </th>
-                    <th scope="col" className="px-4 py-3">
-                      Price
-                    </th>
-                    <th scope="col" className="px-4 py-3">
+                    <th className="px-4 py-3">Image Product</th>
+                    <th className="px-4 py-3">Product Name</th>
+                    <th className="px-4 py-3">RFID Tag No.</th>
+                    <th className="px-4 py-3">Quantity</th>
+                    <th className="px-4 py-3">Category</th>
+                    <th className="px-4 py-3">Price</th>
+                    <th className="px-4 py-3">
                       <span className="sr-only">Actions</span>
                     </th>
                   </tr>
                 </thead>
                 <tbody>
-                  {data.map((newProduct) => (
-                    <tr className="border-b dark:border-gray-700">
-                      <th
-                        scope="row"
-                        className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                      >
-                        {newProduct.product.productName}
-                      </th>
+                  {products.map((product) => (
+                    <tr
+                      key={product.id}
+                      className="border-b dark:border-gray-700"
+                    >
                       <td className="px-4 py-3">
-                        {newProduct.product.RFIDnum}
+                        <img
+                          src={product.imageProduct}
+                          alt={product.productName}
+                          className="w-16"
+                        />
                       </td>
-                      <td className="px-4 py-3">{newProduct.product.lenght}</td>
+                      <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                        {product.productName}
+                      </td>
                       <td className="px-4 py-3">
-                        {newProduct.product.category}
+                        <ul>
+                          {product.RFIDnum.map((RFID, i) => (
+                            <li key={i}>{RFID}</li>
+                          ))}
+                        </ul>
                       </td>
-                      <td className="px-4 py-3">₱{newProduct.product.price}</td>
-                      <td className="px-4 py-3 flex items-center justify-end">
+                      <td className="px-4 py-3">{product.RFIDnum.length}</td>
+                      <td className="px-4 py-3">{product.category}</td>
+                      <td className="px-4 py-3">{product.price}</td>
+                      <td className="px-4 py-3">
                         <button
-                          id="apple-imac-27-dropdown-button"
-                          data-dropdown-toggle="apple-imac-27-dropdown"
-                          className="inline-flex items-center p-0.5 text-sm font-medium text-center text-gray-500 hover:text-gray-800 rounded-lg focus:outline-none dark:text-gray-400 dark:hover:text-gray-100"
-                          type="button"
+                          onClick={() => handleDelete(product.id)}
+                          className="mr-2 text-red-500 hover:text-red-600"
                         >
-                          <svg
-                            className="w-5 h-5"
-                            aria-hidden="true"
-                            fill="currentColor"
-                            viewbox="0 0 20 20"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
-                          </svg>
+                          <MdDelete />
                         </button>
-                        <div
-                          id="apple-imac-27-dropdown"
-                          className="hidden z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600"
+                        <EditProduct />
+                        {/* <button
+                          data-modal-target={`EditProductModal-${product.id}`}
+                          data-modal-show="EditProductModal"
+                          className="text-gray-500 hover:text-gray-600"
                         >
-                          <ul
-                            className="py-1 text-sm text-gray-700 dark:text-gray-200"
-                            aria-labelledby="apple-imac-27-dropdown-button"
-                          >
-                            <li>
-                              <p
-                                type="button"
-                                data-modal-target="editProductModal"
-                                data-modal-show="editProductModal"
-                                className="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                              >
-                                Edit
-                              </p>
-                            </li>
-                          </ul>
-                          <div className="py-1">
-                            <p className="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">
-                              Delete
-                            </p>
-                          </div>
-                        </div>
+                          <MdEdit /> 
+                        </button> */}
                       </td>
                     </tr>
                   ))}
@@ -135,7 +129,7 @@ const Dashboard = () => {
               </table>
 
               {/* <!-- Edit user modal --> */}
-              <EditProduct />
+              {/* <EditProduct /> */}
 
               {/* <!-- ADD PRODUCT modal --> */}
               <AddProduct />
