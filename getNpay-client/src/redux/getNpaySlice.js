@@ -1,5 +1,12 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { addDoc, collection, getDocs } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  updateDoc,
+} from "firebase/firestore";
 import { db } from "../firebase.config";
 
 // const initialState = {
@@ -24,6 +31,34 @@ export const fetchProducts = createAsyncThunk(
       product: doc.data(),
     }));
     return products;
+  }
+);
+
+//Delete Product
+export const deleteProduct = createAsyncThunk(
+  "products/deleteProduct",
+  async (id) => {
+    const products = await getDocs(collection(db, "Products"));
+    for (var snap of products.docs) {
+      if (snap.id === id) {
+        await deleteDoc(doc(db, "Products", snap.id));
+      }
+    }
+    return id;
+  }
+);
+
+export const updateProduct = createAsyncThunk(
+  "product/updateProducts",
+  async (editedProduct) => {
+    const products = await getDocs(collection(db, "Products"));
+    for (var snap of products.docs) {
+      if (snap.id === editedProduct.id) {
+        const productRef = doc(db, "Products", snap.id);
+        await updateDoc(productRef, editedProduct.getNpay);
+      }
+    }
+    return editedProduct;
   }
 );
 
@@ -104,6 +139,20 @@ export const getNplaySlice = createSlice({
       })
       .addCase("ADD_IMAGE_DATA", (state, action) => {
         state.images.push(action.payload);
+      })
+      .addCase(deleteProduct.fulfilled, (state, action) => {
+        state.productsArray = state.productsArray.filter(
+          (product) => product.id !== action.payload
+        );
+      })
+      .addCase(updateProduct.fulfilled, (state, action) => {
+        const { id, product } = action.payload;
+        const productIndex = state.productsArray.findIndex(
+          (product) => product.id === id
+        );
+        if (productIndex !== -1) {
+          state.productsArray[productIndex] = { id: id, product };
+        }
       });
   },
 });

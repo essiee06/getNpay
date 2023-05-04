@@ -18,6 +18,7 @@ const Register = () => {
   const [registerEmail, setRegisterEmail] = useState("");
   const [registerPassword, setRegisterPassword] = useState("");
   const [registerConfPass, setRegisterConfPass] = useState("");
+
   const navigate = useNavigate();
 
   const register = async (e) => {

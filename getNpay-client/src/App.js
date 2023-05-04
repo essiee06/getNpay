@@ -1,5 +1,4 @@
-// import Header from "./components/Header";
-// import Products from "./components/Products";
+import "@stripe/stripe-js";
 import Home from "./pages/Home";
 import {
   createBrowserRouter,
@@ -18,14 +17,13 @@ import Dashboard from "./adminpage/Dashboard";
 import AdminProfile from "./adminpage/AdminProfile";
 import Profile from "./pages/Profile";
 import AdminRegister from "./adminpage/AdminRegister";
+import GCash from "./components/paymentMethod/GCash";
 
 const Layout = () => {
   return (
     <div>
-      {/* <Header /> */}
       <ScrollRestoration />
       <Outlet />
-      {/* <Footer /> */}
     </div>
   );
 };
@@ -79,6 +77,10 @@ const router = createBrowserRouter([
       {
         path: "/profile",
         element: <Profile />,
+      },
+      {
+        path: "/gcash",
+        element: <GCash />,
       },
     ],
   },
