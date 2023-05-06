@@ -3,7 +3,7 @@ import HeaderAdmin from "../components/HeaderAdmin";
 import { MdAdd, MdDelete, MdEdit } from "react-icons/md";
 import "react-toastify/dist/ReactToastify.css";
 import { db } from "../firebase.config";
-import { collection, deleteDoc, doc, getDocs } from "firebase/firestore";
+import { collection, deleteDoc, doc, getDocs, onSnapshot, query } from "firebase/firestore";
 import AddProduct from "./AddProduct";
 import EditProduct from "./EditProduct";
 
@@ -11,16 +11,21 @@ const Dashboard = () => {
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchProducts = () => {
       const productsCollection = collection(db, "Products");
-      const productsSnapshot = await getDocs(productsCollection);
-      setProducts(
-        productsSnapshot.docs.map((doc) => {
-          return { id: doc.id, ...doc.data() };
-        })
-      );
+      const q = query(productsCollection);
+  
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const productsData = [];
+        querySnapshot.forEach((doc) => {
+          productsData.push({ id: doc.id, ...doc.data() });
+        });
+        setProducts(productsData);
+      });
+  
+      return () => unsubscribe();
     };
-
+  
     fetchProducts();
   }, []);
 
@@ -99,12 +104,12 @@ const Dashboard = () => {
                       </td>
                       <td className="px-4 py-3">
                         <ul>
-                          {product.RFIDnum.map((RFID, i) => (
-                            <li key={i}>{RFID}</li>
+                          {product.RFID && product.RFID.map((RFID, i) => (
+                            <li key={i}>{RFID.RFIDtag}</li>
                           ))}
                         </ul>
                       </td>
-                      <td className="px-4 py-3">{product.RFIDnum.length}</td>
+                      <td className="px-4 py-3">{product.RFID ? product.RFID.length : 0}</td>
                       <td className="px-4 py-3">{product.category}</td>
                       <td className="px-4 py-3">{product.price}</td>
                       <td className="px-4 py-3">

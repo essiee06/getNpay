@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { collection, addDoc } from "firebase/firestore";
+import React, { useState, useEffect } from "react";
+import { collection, where, query, getDocs, addDoc } from "firebase/firestore";
 import {
   ref,
   uploadBytesResumable,
@@ -7,68 +7,93 @@ import {
   getStorage,
 } from "firebase/storage";
 import { updateDoc, doc } from "firebase/firestore";
-import { db } from "../firebase.config";
+import { db, rtdb } from "../firebase.config";
 import { useNavigate } from "react-router-dom";
+import { ref as realtimeRef, onValue, off, remove } from "firebase/database";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const AddProduct = () => {
   const [productName, setProductName] = useState("");
-  const [RFIDnum, setRFIDnum] = useState([]);
+  const [RFID, setRFID] = useState([]);
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState("");
   const [file, setFile] = useState(null);
   const [fileName, setFileName] = useState("No file chosen");
 
   const handleProductNameChange = (e) => setProductName(e.target.value);
-  const handleRFIDnumChange = (e) => setRFIDnum([...RFIDnum, e.target.value]);
   const handlePriceChange = (e) => setPrice(e.target.value);
   const handleCategoryChange = (e) => setCategory(e.target.value);
 
+  const rfidRef = realtimeRef(
+    rtdb,
+    "UsersData/cLmwoz9mYfeVQv9u2qdlskMplRy1/data_uploads/rfidtag_id"
+  ); // Replace with the actual path to your RFID tags in the realtime database
+  
+  useEffect(() => {
+
+    const handleData = (snapshot) => {
+      const fetchedData = snapshot.val();
+      const fetchedRFIDTags = Object.values(fetchedData || {});
+      setRFID(fetchedRFIDTags);
+    };
+
+    onValue(rfidRef, handleData, (error) => {
+      console.error("Error fetching RFID tags:", error);
+      toast.error("Error fetching RFID tags:");
+    });
+
+    return () => {
+      // Unsubscribe from the onValue listener when the component unmounts
+      off(rfidRef);
+    };
+  }, []);
+
+
   const navigate = useNavigate("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     try {
-      const docRef = await addDoc(collection(db, "Products"), {
+      const productsRef = collection(db, "Products");
+      let existingRFID = false;
+  
+      for (const RFIDtag of RFID) {
+        const querySnapshot = await getDocs(
+          query(productsRef, where("RFID", "array-contains", { RFIDtag, isPaid: false }))
+        );
+  
+        if (!querySnapshot.empty) {
+          existingRFID = true;
+          break;
+        }
+      }
+  
+      if (existingRFID) {
+        // Display an error if an RFID tag already exists
+        toast.error("RFID Tag ID already exists.");
+        return;
+      }
+  
+      // Map the RFID array to an array of objects with RFIDtag and isPaid properties
+      const RFIDWithIsPaid = RFID.map((RFIDtag) => ({ RFIDtag, isPaid: false }));
+  
+      const productRef = collection(db, "Products");
+      const docRef = await addDoc(productRef, {
         productName: productName,
-        RFIDnum: RFIDnum,
+        RFID: RFIDWithIsPaid, // Use the modified RFID array
         price: price,
         category: category,
       });
-
-      if (file) {
-        const storage = getStorage();
-        const storageRef = ref(
-          storage,
-          `productImage/${docRef.id}/${file.name}`
-        );
-
-        const uploadTask = uploadBytesResumable(storageRef, file);
-
-        uploadTask.on(
-          "state_changed",
-          (snapshot) => {
-            // Progress function
-            // You can use this to provide feedback on upload progress to the user
-          },
-          (error) => {
-            // Error function
-            console.log(error);
-          },
-          () => {
-            // Complete function
-            getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-              const productRef = doc(db, "Products", docRef.id);
-              updateDoc(productRef, {
-                imageProduct: downloadURL,
-              });
-            });
-          }
-        );
-      }
-
+  
+      // Add code to clear RFID tags from realtime database
+      await remove(rfidRef);
+  
+      // Reset form state values
       setProductName("");
-      setRFIDnum([]);
+      setRFID([]);
       setPrice("");
       setCategory("");
       setFile(null);
@@ -76,10 +101,13 @@ const AddProduct = () => {
       setTimeout(() => {
         navigate("/admin/dashboard");
       }, 1500);
+      toast.success("Product has successfully been added.");
     } catch (error) {
       console.error("Error adding document: ", error);
+      toast.error(error.message);
     }
   };
+  
 
   return (
     <div
@@ -123,7 +151,8 @@ const AddProduct = () => {
           {/* <!-- Modal body --> */}
           <div className="p-6 space-y-6">
             <div className="grid grid-cols-6 gap-6">
-              <div className="col-span-6 sm:col-span-3">
+              
+            <div className="col-span-6 sm:col-span-3">
                 <label
                   for="product-name"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
@@ -141,6 +170,7 @@ const AddProduct = () => {
                   onChange={handleProductNameChange}
                 />
               </div>
+
               <div className="col-span-6 sm:col-span-3">
                 <label
                   for="RFIDtagNum"
@@ -148,13 +178,25 @@ const AddProduct = () => {
                 >
                   RFID Tag UID No.:
                 </label>
-                <ul className="list-disc pl-5"></ul>
+                <div className="flex items-center mb-2">
+                  {RFID.length > 0 ? (
+                    <ul className="list-disc pl-5">
+                      {RFID.map((rfid, index) => (
+                        <li key={index}>{rfid}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p>No RFID Tag Scanned</p>
+                  )}
+                </div>
               </div>
+
 
               <div className="col-span-6 sm:col-span-3">
                 <label
                   for="price"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                  numberOnly
                 >
                   Price
                 </label>
@@ -232,6 +274,22 @@ const AddProduct = () => {
             >
               Save all
             </button>
+
+            {/* {errorMessage && (
+              <p className="text-red-500 text-sm">{errorMessage}</p>
+            )} */}
+            <ToastContainer
+              position="top-center"
+              autoClose={2000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+              theme="dark"
+            />
           </div>
         </form>
       </div>

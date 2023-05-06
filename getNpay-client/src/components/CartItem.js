@@ -1,49 +1,54 @@
 import React, { useState, useEffect } from "react";
 import { ref, onValue, off } from "firebase/database";
 import { db, rtdb } from "../firebase.config";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 import { profile } from "../assets";
+import CheckoutForm from "./CheckoutForm";
 
 const CartItem = () => {
   const [products, setProducts] = useState([]);
+  const [totalAmt, setTotalAmt] = useState(0);
 
   const fetchProductsByRfid = async (rfidList) => {
     const productsRef = collection(db, "Products");
-    const productsWithRfid = [];
-
+    const productsWithRfid = {};
+  
     try {
-      for (let rfid of rfidList) {
-        console.log("Searching for product with RFID:", rfid);
-        const q = query(productsRef, where("RFIDnum", "array-contains", rfid));
-        const querySnapshot = await getDocs(q);
-
-        querySnapshot.forEach((doc) => {
-          console.log("Found product:", doc.data());
-          const product = { ...doc.data(), id: doc.id };
-
-          // Check if product's RFID tags are in the RFID list and if it has not already been added
-          const hasAllRfidTags = product.RFIDnum.every((tag) =>
-            rfidList.includes(tag)
-          );
-          const notAddedYet = !productsWithRfid.some(
-            (existingProduct) => existingProduct.id === product.id
-          );
-
-          if (hasAllRfidTags && notAddedYet) {
-            productsWithRfid.push(product);
+      const querySnapshot = await getDocs(productsRef);
+      querySnapshot.forEach((doc) => {
+        const product = { ...doc.data(), id: doc.id };
+        let productRfidCount = 0;
+  
+        for (const rfid of rfidList) {
+          if (product.RFID && product.RFID.find((item) => item.RFIDtag === rfid)) {
+            productRfidCount += 1;
           }
-        });
-      }
+        }
+  
+        if (productRfidCount > 0) {
+          productsWithRfid[product.id] = {
+            ...product,
+            quantity: productRfidCount,
+            RFID: rfidList.filter((rfid) =>
+              product.RFID.find((item) => item.RFIDtag === rfid)
+            ),
+          };
+        }
+      });
     } catch (error) {
       console.error("Error fetching products by RFID:", error);
     }
-
-    // Sort products alphabetically by their product name
-    productsWithRfid.sort((a, b) => a.productName.localeCompare(b.productName));
-    console.log("Fetched products:", JSON.stringify(productsWithRfid, null, 2));
-
-    setProducts(productsWithRfid);
+  
+    // Convert the object to an array and sort it alphabetically by product name
+    const groupedProducts = Object.values(productsWithRfid).sort((a, b) =>
+      a.productName.localeCompare(b.productName)
+    );
+    console.log("Fetched products:", JSON.stringify(groupedProducts, null, 2));
+  
+    setProducts(groupedProducts);
   };
+  
+  
 
   useEffect(() => {
     const rfidRef = ref(
@@ -70,13 +75,22 @@ const CartItem = () => {
     };
   }, []);
 
+    useEffect(() => {
+    let price = 0;
+    products.map((item) => {
+      price += item.price * item.RFID.length;
+      return price;
+    });
+    setTotalAmt(price.toFixed(2));
+  }, [products]);
+
   return (
     <div className="py-10">
       <div className="w-full">
         <h2 className="font-titleFont text-2xl">shopping cart</h2>
       </div>
       <div>
-        <div className="flex border items-center justify-between gap-6 mt-6">
+        <div className="flex border items-center justify-between gap-6 mt-6 px-4">
           <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
             <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
               <tr>
@@ -105,21 +119,21 @@ const CartItem = () => {
                     className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
                   >
                     <td className="w-32 p-4">
-                      <img src={item.imageproduct} alt={item.productName} />
+                      <img src={item.imageProduct} alt={item.productName} />
                     </td>
                     <td className="px-6 py-4 font-semibold text-gray-900 dark:text-white">
                       {item.productName}
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center space-x-3">
-                        <span>{item.RFIDnum.length}</span>
+                        <span>{item.quantity}</span>
                       </div>
                     </td>
                     <td className="px-6 py-4 font-semibold text-gray-900 dark:text-white">
                       ₱{item.price}
                     </td>
                     <td className="px-6 py-4 font-semibold text-gray-900 dark:text-white">
-                      ₱ {item.price}*{item.RFIDnum.length}
+                      ₱ {item.price * item.RFID.length}
                     </td>
                   </tr>
                 ))
@@ -128,29 +142,36 @@ const CartItem = () => {
                   <td colSpan="4" className="px-6 py-4 text-center">
                     Cart is empty
                   </td>
-                  {/* <td className="w-32 p-4">
-                    <img src={profile} alt="{item.productName}" />
-                  </td>
-                  <td className="px-6 py-4 font-semibold text-gray-900 dark:text-white">
-                    Busog Lusog
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center space-x-3">
-                      <span>9</span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 font-semibold text-gray-900 dark:text-white">
-                    ₱6.00
-                  </td>
-                  <td className="px-6 py-4 font-semibold text-gray-900 dark:text-white">
-                    ₱54.00
-                  </td> */}
                 </tr>
               )}
             </tbody>
           </table>
         </div>
       </div>
+
+      <div className="bg-[#fafafa] py-6 px-4">
+          <div className=" flex flex-col gap-6 border-b-[1px] border-b-gray-400 pb-6">
+            <h2 className="text-2xl font-medium "> </h2>
+            <p className="flex items-center gap-4 text-base">
+              Subtotal
+              <span className="font-titleFont font-bold text-sm">
+                ₱{totalAmt}
+              </span>
+            </p>
+          </div>
+          <p className="font-titleFont font-semibold flex justify-between mt-6">
+            Total <span className="text-md font-bold">₱{totalAmt}</span>
+          </p>
+          <button
+            type="button"
+            data-modal-target="proceed-to-checkout"
+            data-modal-toggle="proceed-to-checkout"
+            class="text-base bg-blue-400 text-white w-full py-3 mt-6 hover:bg-blue-800 duration-300"
+          >
+            Proceed to checkout
+          </button>
+          <CheckoutForm />
+        </div>
     </div>
   );
 };
