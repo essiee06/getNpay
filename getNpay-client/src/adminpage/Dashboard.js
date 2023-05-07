@@ -4,7 +4,8 @@ import { MdAdd, MdDelete, MdEdit } from "react-icons/md";
 import "react-toastify/dist/ReactToastify.css";
 import { db } from "../firebase.config";
 import { collection, deleteDoc, doc, getDocs, onSnapshot, query } from "firebase/firestore";
-import AddProduct from "./AddProduct";
+import AddNewProduct from "./AddNewProduct";
+import AddExistingProduct from "./AddExistingProduct.js";
 import EditProduct from "./EditProduct";
 
 const Dashboard = () => {
@@ -62,12 +63,23 @@ const Dashboard = () => {
               <div className="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
                 <p
                   type="button"
-                  data-modal-target="AddProductModal"
-                  data-modal-show="AddProductModal"
+                  data-modal-target="AddNewProductModal"
+                  data-modal-show="AddNewProductModal"
                   className="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
                 >
                   <MdAdd />
-                  Add product
+                  Add New Product
+                </p>
+              </div>
+              <div className="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
+                <p
+                  type="button"
+                  data-modal-target="AddExistingProductModal"
+                  data-modal-show="AddExistingProductModal"
+                  className="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
+                >
+                  <MdAdd />
+                  Add Existing Product
                 </p>
               </div>
             </div>
@@ -76,6 +88,7 @@ const Dashboard = () => {
                 <thead className="text-xs text-gray-700 uppercase bg-[#d6e6ee] dark:bg-gray-700 dark:text-gray-400">
                   <tr>
                     <th className="px-4 py-3">Image Product</th>
+                    <th className="px-4 py-3">Product ID</th>
                     <th className="px-4 py-3">Product Name</th>
                     <th className="px-4 py-3">RFID Tag No.</th>
                     <th className="px-4 py-3">Quantity</th>
@@ -99,6 +112,9 @@ const Dashboard = () => {
                           className="w-16"
                         />
                       </td>
+                      <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                      {product.id}
+                       </td>
                       <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                         {product.productName}
                       </td>
@@ -136,8 +152,11 @@ const Dashboard = () => {
               {/* <!-- Edit user modal --> */}
               {/* <EditProduct /> */}
 
-              {/* <!-- ADD PRODUCT modal --> */}
-              <AddProduct />
+              {/* <!-- ADD NEW PRODUCT modal --> */}
+              <AddNewProduct />
+              {/* <!-- ADD EXISTING PRODUCT modal --> */}
+              <AddExistingProduct />
+
             </div>
           </div>
         </div>
