@@ -100,14 +100,12 @@ const AddNewProduct = () => {
         category: category,
       };
 
-      const docRef = await addDoc(productsRef, docData);
+      const productRef = doc(productsRef, productId);
+      await setDoc(productRef, docData);
 
       if (file) {
         const storage = getStorage();
-        const storageRef = ref(
-          storage,
-          `productImage/${docRef.id}/${file.name}`
-        );
+        const storageRef = ref(storage, `productImage/${doc.id}/${file.name}`);
 
         const uploadTask = uploadBytesResumable(storageRef, file);
 
@@ -124,7 +122,6 @@ const AddNewProduct = () => {
           () => {
             // Complete function
             getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-              const productRef = doc(db, "Products", docRef.id);
               updateDoc(productRef, {
                 imageProduct: downloadURL,
               });
