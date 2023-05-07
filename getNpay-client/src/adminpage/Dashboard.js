@@ -3,7 +3,14 @@ import HeaderAdmin from "../components/HeaderAdmin";
 import { MdAdd, MdDelete, MdEdit } from "react-icons/md";
 import "react-toastify/dist/ReactToastify.css";
 import { db } from "../firebase.config";
-import { collection, deleteDoc, doc, getDocs, onSnapshot, query } from "firebase/firestore";
+import {
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  onSnapshot,
+  query,
+} from "firebase/firestore";
 import AddNewProduct from "./AddNewProduct";
 import AddExistingProduct from "./AddExistingProduct.js";
 import EditProduct from "./EditProduct";
@@ -15,7 +22,7 @@ const Dashboard = () => {
     const fetchProducts = () => {
       const productsCollection = collection(db, "Products");
       const q = query(productsCollection);
-  
+
       const unsubscribe = onSnapshot(q, (querySnapshot) => {
         const productsData = [];
         querySnapshot.forEach((doc) => {
@@ -23,10 +30,10 @@ const Dashboard = () => {
         });
         setProducts(productsData);
       });
-  
+
       return () => unsubscribe();
     };
-  
+
     fetchProducts();
   }, []);
 
@@ -113,19 +120,22 @@ const Dashboard = () => {
                         />
                       </td>
                       <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                      {product.id}
-                       </td>
+                        {product.id}
+                      </td>
                       <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                         {product.productName}
                       </td>
                       <td className="px-4 py-3">
                         <ul>
-                          {product.RFID && product.RFID.map((RFID, i) => (
-                            <li key={i}>{RFID.RFIDtag}</li>
-                          ))}
+                          {product.RFID &&
+                            product.RFID.map((RFID, i) => (
+                              <li key={i}>{RFID.RFIDtag}</li>
+                            ))}
                         </ul>
                       </td>
-                      <td className="px-4 py-3">{product.RFID ? product.RFID.length : 0}</td>
+                      <td className="px-4 py-3">
+                        {product.RFID ? product.RFID.length : 0}
+                      </td>
                       <td className="px-4 py-3">{product.category}</td>
                       <td className="px-4 py-3">{product.price}</td>
                       <td className="px-4 py-3">
@@ -135,13 +145,13 @@ const Dashboard = () => {
                         >
                           <MdDelete />
                         </button>
-                        <EditProduct />
+                        <EditProduct product={product} />
                         {/* <button
                           data-modal-target={`EditProductModal-${product.id}`}
                           data-modal-show="EditProductModal"
                           className="text-gray-500 hover:text-gray-600"
                         >
-                          <MdEdit /> 
+                          <MdEdit />
                         </button> */}
                       </td>
                     </tr>
@@ -156,7 +166,6 @@ const Dashboard = () => {
               <AddNewProduct />
               {/* <!-- ADD EXISTING PRODUCT modal --> */}
               <AddExistingProduct />
-
             </div>
           </div>
         </div>

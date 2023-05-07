@@ -1,5 +1,12 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { collection, where, query, getDocs, setDoc } from "firebase/firestore";
+import {
+  collection,
+  where,
+  query,
+  getDocs,
+  setDoc,
+  addDoc,
+} from "firebase/firestore";
 import {
   ref,
   uploadBytesResumable,
@@ -21,7 +28,6 @@ const AddNewProduct = () => {
   const [file, setFile] = useState(null);
   const [fileName, setFileName] = useState("No file chosen");
   const [productId, setProductId] = useState("");
-
 
   const handleProductNameChange = (e) => setProductName(e.target.value);
   const handlePriceChange = (e) => setPrice(e.target.value);
@@ -51,7 +57,6 @@ const AddNewProduct = () => {
     };
   }, []);
 
-
   const navigate = useNavigate("");
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -61,18 +66,21 @@ const AddNewProduct = () => {
     try {
       const productsRef = collection(db, "Products");
       let existingRFID = false;
-  
+
       for (const RFIDtag of RFID) {
         const querySnapshot = await getDocs(
-          query(productsRef, where("RFID", "array-contains", { RFIDtag, isPaid: false }))
+          query(
+            productsRef,
+            where("RFID", "array-contains", { RFIDtag, isPaid: false })
+          )
         );
-  
+
         if (!querySnapshot.empty) {
           existingRFID = true;
           break;
         }
       }
-  
+
       if (existingRFID) {
         // Display an error if an RFID tag already exists
         toast.error("RFID Tag ID already exists.");
@@ -80,19 +88,26 @@ const AddNewProduct = () => {
       }
 
       // Map the RFID array to an array of objects with RFIDtag and isPaid properties
-      const RFIDWithIsPaid = RFID.map((RFIDtag) => ({ RFIDtag, isPaid: false }));
+      const RFIDWithIsPaid = RFID.map((RFIDtag) => ({
+        RFIDtag,
+        isPaid: false,
+      }));
 
-      const productRef = doc(db, "Products", productId);
-      await setDoc(productRef, {
+      const docData = {
         productName: productName,
         RFID: RFIDWithIsPaid, // Use the modified RFID array
         price: price,
         category: category,
-      });
+      };
+
+      const docRef = await addDoc(productsRef, docData);
 
       if (file) {
         const storage = getStorage();
-        const storageRef = ref(storage, `productImage/${doc.id}/${file.name}`);
+        const storageRef = ref(
+          storage,
+          `productImage/${docRef.id}/${file.name}`
+        );
 
         const uploadTask = uploadBytesResumable(storageRef, file);
 
@@ -109,7 +124,7 @@ const AddNewProduct = () => {
           () => {
             // Complete function
             getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-              const productRef = doc(db, "Products", doc.id);
+              const productRef = doc(db, "Products", docRef.id);
               updateDoc(productRef, {
                 imageProduct: downloadURL,
               });
