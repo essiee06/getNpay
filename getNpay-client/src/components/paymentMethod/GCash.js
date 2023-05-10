@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const GCash = ({ amount, description }) => {
+const GCash = ({ amount, products, setProducts }) => {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -8,7 +8,8 @@ const GCash = ({ amount, description }) => {
   const [payProcess, setPayProcess] = useState("");
   const [paymentStatus, setPaymentStatus] = useState("");
 
-  const publicKey = process.env.NEXT_PUBLIC_PAYMONGO_PUBLIC;
+  const publicKey = "pk_test_XWgQRf7AGZuvdV4d8rveic12";
+  let link = "http://192.168.1.12:3000/success";
 
   // Function to Create A Source
   const createSource = async () => {
@@ -18,20 +19,18 @@ const GCash = ({ amount, description }) => {
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
-        Authorization: `Basic ${Buffer.from(
-          "pk_test_XWgQRf7AGZuvdV4d8rveic12"
-        ).toString("base64")}`,
+        Authorization: `Basic ${btoa(`${publicKey}:`)}`,
       },
       body: JSON.stringify({
         data: {
           attributes: {
             amount: amount * 100,
             redirect: {
-              success: "http://localhost:3000/payment",
+              success: "http://192.168.1.12:3000/success",
               failed: "http://localhost:3000/payment",
             },
             billing: { name: `${name}`, phone: `${phone}`, email: `${email}` },
-            type: "gcash", //change to graby_pay in GrabPay.js
+            type: "gcash",
             currency: "PHP",
           },
         },
@@ -58,9 +57,7 @@ const GCash = ({ amount, description }) => {
           {
             headers: {
               // Base64 encoded public PayMongo API key.
-              Authorization: `Basic ${Buffer.from(publicKey).toString(
-                "base64"
-              )}`,
+              Authorization: `Basic ${btoa(`${publicKey}:`)}`,
             },
           }
         )
@@ -76,6 +73,22 @@ const GCash = ({ amount, description }) => {
           setPaymentStatus("Payment Failed");
         } else if (sourceData.attributes.status === "paid") {
           setPaymentStatus("Payment Success");
+
+          // Delete product from cart
+          const deleteProductResponse = await fetch(
+            "/api/delete-product-from-cart",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ products: products }),
+            }
+          );
+
+          if (!deleteProductResponse.ok) {
+            console.error("Failed to delete product from cart");
+          }
         } else {
           i = 5;
           setPayProcess(sourceData.attributes.status);
@@ -86,8 +99,14 @@ const GCash = ({ amount, description }) => {
 
   const onSubmit = async (event) => {
     event.preventDefault();
-    event.preventDefault();
     const source = await createSource();
+
+    if (source.errors) {
+      console.error("API Error:", source.errors);
+      setPaymentStatus("Payment Error");
+      return;
+    }
+
     window.open(source.data.attributes.redirect.checkout_url, "_blank");
     listenToPayment(source.data.id);
   };
@@ -97,7 +116,7 @@ const GCash = ({ amount, description }) => {
       <div>
         <div className="px-10">
           <form className="flex flex-col space-y-5" onSubmit={onSubmit}>
-            <h5 class="text-xl font-medium text-gray-900 dark:text-white">
+            <h5 className="text-xl font-medium text-gray-900 dark:text-white">
               Billing Information
             </h5>
             <div className="grid gap-6 mb-6 md:grid-cols-2">

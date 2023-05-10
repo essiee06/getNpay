@@ -1,5 +1,12 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { collection, where, query, getDocs, setDoc, getDoc } from "firebase/firestore";
+import {
+  collection,
+  where,
+  query,
+  getDocs,
+  setDoc,
+  getDoc,
+} from "firebase/firestore";
 import {
   ref,
   uploadBytesResumable,
@@ -16,7 +23,7 @@ import "react-toastify/dist/ReactToastify.css";
 const AddNewExistingProduct = () => {
   const [productName, setProductName] = useState("");
   const [realtimeRFID, setRealtimeRFID] = useState([]);
-  const [firestoreRFID, setFirestoreRFID] = useState([]);  
+  const [firestoreRFID, setFirestoreRFID] = useState([]);
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState("");
   const [productId, setProductId] = useState("");
@@ -25,11 +32,9 @@ const AddNewExistingProduct = () => {
   const [selectedProductId, setSelectedProductId] = useState("");
   const [selectedProductRFID, setSelectedProductRFID] = useState([]);
 
-
   const handleProductNameChange = (e) => setProductName(e.target.value);
   const handlePriceChange = (e) => setPrice(e.target.value);
   const handleCategoryChange = (e) => setCategory(e.target.value);
- 
 
   const handleSelectedProductIdChange = (e) => {
     setSelectedProductId(e.target.value);
@@ -44,7 +49,7 @@ const AddNewExistingProduct = () => {
     try {
       const productRef = doc(db, "Products", id);
       const productDoc = await getDoc(productRef);
-  
+
       if (productDoc.exists()) {
         const data = productDoc.data();
         setProductName(data.productName);
@@ -58,8 +63,7 @@ const AddNewExistingProduct = () => {
       console.log("Error getting document:", error);
     }
   };
-  
-  
+
   useEffect(() => {
     const rfidRef = realtimeRef(
       rtdb,
@@ -89,45 +93,45 @@ const AddNewExistingProduct = () => {
       rtdb,
       "UsersData/cLmwoz9mYfeVQv9u2qdlskMplRy1/data_uploads/rfidtag_id"
     ); // Replace with the actual path to your RFID tags in the realtime database
-  
+
     const handleData = (snapshot) => {
       const fetchedData = snapshot.val();
       const fetchedRFIDTags = Object.values(fetchedData || {});
       setRealtimeRFID(fetchedRFIDTags);
     };
-  
+
     onValue(rfidRef, handleData, (error) => {
       console.error("Error fetching RFID tags:", error);
       toast.error("Error fetching RFID tags:");
     });
-  
+
     return () => {
       // Unsubscribe from the onValue listener when the component unmounts
       off(rfidRef);
     };
   }, []);
-  
+
   //fetch rfid tag from FIRESTORE
   useEffect(() => {
     const fetchFirestoreRFIDTags = async () => {
-        const productsCol = collection(db, "Products");
-        const productsSnapshot = await getDocs(productsCol);
-        const allRFIDtags = [];
-      
-        productsSnapshot.forEach((doc) => {
-          const productId = doc.id;
-          const productData = doc.data();
-          const RFIDArray = productData.RFID;
-      
-          RFIDArray.forEach((RFIDObj) => {
-            const RFIDtag = RFIDObj.RFIDtag;
-            allRFIDtags.push({ RFIDtag, productId });
-          });
+      const productsCol = collection(db, "Products");
+      const productsSnapshot = await getDocs(productsCol);
+      const allRFIDtags = [];
+
+      productsSnapshot.forEach((doc) => {
+        const productId = doc.id;
+        const productData = doc.data();
+        const RFIDArray = productData.RFID;
+
+        RFIDArray.forEach((RFIDObj) => {
+          const RFIDtag = RFIDObj.RFIDtag;
+          allRFIDtags.push({ RFIDtag, productId });
         });
-      
-        setFirestoreRFID(allRFIDtags);
-      };
-  
+      });
+
+      setFirestoreRFID(allRFIDtags);
+    };
+
     fetchFirestoreRFIDTags();
   }, []);
 
@@ -147,7 +151,7 @@ const AddNewExistingProduct = () => {
 
     fetchProductIds();
   }, []);
-  
+
   const navigate = useNavigate("");
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -157,18 +161,21 @@ const AddNewExistingProduct = () => {
     try {
       const productsRef = collection(db, "Products");
       let existingRFID = false;
-  
+
       for (const RFIDtag of firestoreRFID) {
         const querySnapshot = await getDocs(
-          query(productsRef, where("RFID", "array-contains", { RFIDtag, isPaid: false }))
+          query(
+            productsRef,
+            where("RFID", "array-contains", { RFIDtag, isPaid: false })
+          )
         );
-  
+
         if (!querySnapshot.empty) {
           existingRFID = true;
           break;
         }
       }
-  
+
       if (existingRFID) {
         // Display an error if an RFID tag already exists
         toast.error("RFID Tag ID already exists.");
@@ -176,7 +183,10 @@ const AddNewExistingProduct = () => {
       }
 
       // Map the RFID array to an array of objects with RFIDtag and isPaid properties
-      const RFIDWithIsPaid = firestoreRFID.map((RFIDtag) => ({ RFIDtag, isPaid: false }));
+      const RFIDWithIsPaid = firestoreRFID.map((RFIDtag) => ({
+        RFIDtag,
+        isPaid: false,
+      }));
 
       const productRef = doc(db, "Products", productId);
       await setDoc(productRef, {
@@ -268,41 +278,41 @@ const AddNewExistingProduct = () => {
 
               <div className="col-span-6 sm:col-span-3">
                 <label
-                    for="RFIDtagNumRealtime"
-                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                  for="RFIDtagNumRealtime"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
-                    Scanned RFID Tag UID No. (Realtime Database):
+                  Scanned RFID Tag UID No. (Realtime Database):
                 </label>
                 <div className="flex items-center mb-2">
-                    {realtimeRFID.length > 0 ? (
+                  {realtimeRFID.length > 0 ? (
                     <ul className="list-disc pl-5">
-                        {realtimeRFID.map((rfid, index) => (
+                      {realtimeRFID.map((rfid, index) => (
                         <li key={index}>{rfid}</li>
-                        ))}
+                      ))}
                     </ul>
-                    ) : (
+                  ) : (
                     <p>No RFID Tag Scanned (Realtime Database)</p>
-                    )}
+                  )}
                 </div>
               </div>
 
               <div className="col-span-6 sm:col-span-3">
                 <label
-                    for="selectedProductRFIDtags"
-                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                  for="selectedProductRFIDtags"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
-                    Existing RFID Tag UID No. (Firestore):
+                  Existing RFID Tag UID No. (Firestore):
                 </label>
                 <div className="flex items-center mb-2">
-                    {selectedProductRFID.length > 0 ? (
+                  {selectedProductRFID.length > 0 ? (
                     <ul className="list-disc pl-5">
-                        {selectedProductRFID.map((rfid, index) => (
+                      {selectedProductRFID.map((rfid, index) => (
                         <li key={index}>{rfid}</li>
-                        ))}
+                      ))}
                     </ul>
-                    ) : (
+                  ) : (
                     <p></p>
-                    )}
+                  )}
                 </div>
               </div>
 
@@ -340,10 +350,8 @@ const AddNewExistingProduct = () => {
                   value={category}
                   onChange={handleCategoryChange}
                   readOnly
-                >
-                </input>
+                ></input>
               </div>
-
             </div>
           </div>
           {/* <!-- Modal footer --> */}

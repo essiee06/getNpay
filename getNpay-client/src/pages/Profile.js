@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { doc, getDoc, setDoc } from "firebase/firestore";
-import { auth, db } from "../firebase.config";
-import { onAuthStateChanged } from "firebase/auth";
-import { profile } from "../assets";
+import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { auth, db, storage } from "../firebase.config";
+import { onAuthStateChanged, updateProfile } from "firebase/auth";
+import { defaultAvatar, profile } from "../assets";
 import Header from "../components/Header";
 import { useNavigate } from "react-router-dom";
+import { getDownloadURL, uploadBytes } from "firebase/storage";
+import { ref } from "firebase/database";
 
-const Profile = () => {
+const Profile = ({ products = [] }) => {
   // let navigate = useNavigate();
 
   // auth.onAuthStateChanged((user) => {
@@ -14,6 +16,7 @@ const Profile = () => {
   //     navigate("/");
   //   }
   // });
+  let navigate = useNavigate();
 
   const [user, setUser] = useState(null);
   const [firstName, setFirstName] = useState("");
@@ -24,6 +27,8 @@ const Profile = () => {
   const [currentpassword, setCurrentPassword] = useState("");
   const [newpassword, setNewPassword] = useState("");
   const [confirmpassword, setConfirmPassword] = useState("");
+  const [url, setUrl] = useState(null);
+  const [image, setImage] = useState(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -84,10 +89,56 @@ const Profile = () => {
       }
     }
   };
+  const handleImageChange = (e) => {
+    if (e.target.files[0]) {
+      setImage(e.target.files[0]);
+    }
+  };
 
+  const handleSubmit = () => {
+    var user = auth.currentUser;
+    var userUid = auth.currentUser.uid;
+    var docRef = doc(db, "users", userUid);
+    const imageRef = ref(storage, auth.currentUser.uid);
+
+    uploadBytes(imageRef, image)
+      .then(() => {
+        getDownloadURL(imageRef)
+          .then((url) => {
+            setUrl(url);
+            if (user) {
+              getDoc(docRef)
+                .then((doc) => {
+                  if (doc.exists) {
+                    //UPDATE PROFILE PICTURE
+                    updateDoc(docRef, {
+                      Profile_Picture: url,
+                    });
+                  }
+                })
+                .then((response) => {
+                  updateProfile(user, {
+                    photoURL: url,
+                  });
+                  navigate("/profile");
+                })
+                .catch((error) => {
+                  console.log("Error getting document:", error);
+                });
+            }
+          })
+          .catch((error) => {
+            console.log(error.message, "error getting the image url");
+          });
+        setImage(null);
+      })
+      .catch((error) => {
+        console.log(error.message);
+      });
+  };
   return (
     <div className="bg-background  bg-no-repeat bg-cover bg-center">
-      <Header />
+      <Header products={products} />
       <div className="min-h-screen max-w-screen-xl mx-auto flex-1 justify-center">
         <div className="grid  grid-cols-1 px-4 pt-6 xl:grid-cols-3 xl:gap-4 dark:bg-gray-900">
           <div className="mb-4 mt-12 pt-5 col-span-full xl:mb-2">
@@ -101,7 +152,7 @@ const Profile = () => {
               <div className="items-center sm:flex xl:block 2xl:flex sm:space-x-4 xl:space-x-0 2xl:space-x-4">
                 <img
                   className="mb-4 rounded-full w-28 h-28 sm:mb-0 xl:mb-4 2xl:mb-0"
-                  src={profile}
+                  src={url ? url : defaultAvatar}
                   alt="profile"
                 />
                 <div>
@@ -133,7 +184,8 @@ const Profile = () => {
                       id="file"
                       class="absolute w-full  h-full"
                       type="file"
-                      style={{ visibility: "hidden" }}
+                      // style={{ visibility: "hidden" }}
+                      onChange={handleImageChange}
                     />
                   </div>
                 </div>

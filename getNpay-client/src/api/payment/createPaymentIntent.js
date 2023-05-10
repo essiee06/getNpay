@@ -14,6 +14,7 @@ export default async function handler(req, res) {
         ).toString("base64")}`, // HTTP Basic Auth and Encoding
       },
       body: JSON.stringify(req.body),
+
       // The req.body should follow this specific format
       //   {
       //     "data": {

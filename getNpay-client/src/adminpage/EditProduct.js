@@ -11,6 +11,9 @@ import { db } from "../firebase.config";
 import { MdEdit } from "react-icons/md";
 import { storage } from "../firebase.config";
 import { deleteObject } from "firebase/storage";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 const EditProduct = ({ product }) => {
   const [currentProduct, setCurrentProduct] = useState(product);
   const [showModal, setShowModal] = useState(false);
@@ -67,7 +70,10 @@ const EditProduct = ({ product }) => {
       });
 
       toggleModal();
+      toast.success("Product updated successfully");
     } catch (error) {
+      toast.error("Error updating product: ", error);
+
       console.error("Error updating product: ", error);
     }
   };
@@ -244,6 +250,18 @@ const EditProduct = ({ product }) => {
           </div>
         </div>
       </div>
+      <ToastContainer
+        position="top-center"
+        autoClose={2000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
     </>
   );
 };

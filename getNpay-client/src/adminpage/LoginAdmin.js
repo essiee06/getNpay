@@ -12,7 +12,6 @@ import {
   where,
 } from "firebase/firestore";
 import { useState, useEffect } from "react";
-import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { logoLight } from "../assets/index";
 
@@ -22,7 +21,6 @@ const Login = () => {
   const auth = getAuth();
   const firestore = getFirestore();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {

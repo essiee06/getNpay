@@ -14,6 +14,7 @@ import {
 import AddNewProduct from "./AddNewProduct";
 import AddExistingProduct from "./AddExistingProduct.js";
 import EditProduct from "./EditProduct";
+import { ProductImgNotAvail } from "../assets/index";
 
 const Dashboard = () => {
   const [products, setProducts] = useState([]);
@@ -114,7 +115,7 @@ const Dashboard = () => {
                     >
                       <td className="px-4 py-3">
                         <img
-                          src={product.imageProduct}
+                          src={ProductImgNotAvail}
                           alt={product.productName}
                           className="w-16"
                         />

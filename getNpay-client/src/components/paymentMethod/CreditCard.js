@@ -31,7 +31,7 @@ const CreditCard = ({ amount, description }) => {
             headers: {
               // Base64 encoded public PayMongo API key.
               Authorization: `Basic ${Buffer.from(
-                process.env.NEXT_PUBLIC_PAYMONGO_PUBLIC
+                "pk_test_XWgQRf7AGZuvdV4d8rveic12"
               ).toString("base64")}`,
             },
           }
@@ -81,6 +81,7 @@ const CreditCard = ({ amount, description }) => {
       }),
     })
       .then((response) => {
+        console.log(response.json);
         return response.json();
       })
       .then((response) => {
@@ -98,9 +99,7 @@ const CreditCard = ({ amount, description }) => {
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
-        Authorization: `Basic ${Buffer.from(
-          " pk_test_XWgQRf7AGZuvdV4d8rveic12 "
-        ).toString("base64")}`,
+        Authorization: `Basic ${btoa("pk_test_XWgQRf7AGZuvdV4d8rveic12")}`,
       },
       body: JSON.stringify({
         data: {
@@ -144,9 +143,7 @@ const CreditCard = ({ amount, description }) => {
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
-        Authorization: `Basic ${Buffer.from(
-          "pk_test_XWgQRf7AGZuvdV4d8rveic12"
-        ).toString("base64")}`,
+        Authorization: `Basic ${btoa("pk_test_XWgQRf7AGZuvdV4d8rveic12")}`,
       },
       body: JSON.stringify({
         data: {
@@ -169,6 +166,7 @@ const CreditCard = ({ amount, description }) => {
             paymentIntent.attributes.next_action.redirect.url,
             "_blank"
           );
+          listenToPayment(paymentIntent.attributes.client_key);
         } else {
           setPaymentStatus(paymentIntentStatus);
         }
@@ -189,7 +187,7 @@ const CreditCard = ({ amount, description }) => {
   return (
     <div className="px-10">
       <form onSubmit={onSubmit}>
-        <h5 class="text-xl font-medium text-gray-900 dark:text-white">
+        <h5 className="text-xl font-medium text-gray-900 dark:text-white">
           Billing Information
         </h5>
         <div className="grid gap-6 mb-6 md:grid-cols-2">
@@ -228,7 +226,7 @@ const CreditCard = ({ amount, description }) => {
           <div className="space-y-1">
             <label
               htmlFor="email"
-              class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
             >
               Email:
             </label>
@@ -245,10 +243,10 @@ const CreditCard = ({ amount, description }) => {
           </div>
           <div>
             <h2>Payment Details</h2>
-            <div className="space-y-1">
+            <div>
               <label
                 htmlFor="cc-name"
-                class="block mb-2  mt-2 text-sm font-medium text-gray-900 dark:text-white"
+                className="block mb-2  mt-2 text-sm font-medium text-gray-900 dark:text-white"
               >
                 Card Holder
               </label>
@@ -265,7 +263,7 @@ const CreditCard = ({ amount, description }) => {
             <div className="space-y-1">
               <label
                 htmlFor="cc-number"
-                class="block mb-2  mt-2 text-sm font-medium text-gray-900 dark:text-white"
+                className="block mb-2  mt-2 text-sm font-medium text-gray-900 dark:text-white"
               >
                 Card Number:
               </label>
@@ -282,7 +280,7 @@ const CreditCard = ({ amount, description }) => {
             </div>
             <div id="form-date" className="space-y-1">
               <label
-                class="block mb-2 mt-2 text-sm font-medium text-gray-900 dark:text-white"
+                className="block mb-2 mt-2 text-sm font-medium text-gray-900 dark:text-white"
                 htmlFor="expiry-month"
               >
                 Expiry date:
@@ -334,7 +332,7 @@ const CreditCard = ({ amount, description }) => {
             </div>
             <div id="form-sec-code">
               <label
-                class="block mb-2  mt-2 text-sm font-medium text-gray-900 dark:text-white"
+                className="block mb-2  mt-2 text-sm font-medium text-gray-900 dark:text-white"
                 htmlFor="sec-code"
               >
                 Security code:
