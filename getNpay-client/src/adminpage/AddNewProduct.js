@@ -60,6 +60,7 @@ const AddNewProduct = () => {
   const navigate = useNavigate("");
   const [errorMessage, setErrorMessage] = useState("");
 
+  // submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -88,9 +89,9 @@ const AddNewProduct = () => {
       }
 
       // Map the RFID array to an array of objects with RFIDtag and isPaid properties
-      const RFIDWithIsPaid = RFID.map((RFIDtag) => ({
-        RFIDtag,
-        isPaid: false,
+      const RFIDWithIsPaid = RFID.map((EPC) => ({
+        EPC,
+        isPaid: false, //DEFAULT TO FALSE when adding a new product
       }));
 
       const docData = {
