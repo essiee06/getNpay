@@ -1,11 +1,13 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import {
+  doc,
   collection,
   where,
   query,
   getDocs,
-  setDoc,
+  arrayUnion,
   getDoc,
+  updateDoc,
 } from "firebase/firestore";
 import {
   ref,
@@ -13,7 +15,6 @@ import {
   getDownloadURL,
   getStorage,
 } from "firebase/storage";
-import { updateDoc, doc } from "firebase/firestore";
 import { db, rtdb } from "../firebase.config";
 import { useNavigate } from "react-router-dom";
 import { ref as realtimeRef, onValue, off } from "firebase/database";
@@ -55,7 +56,12 @@ const AddNewExistingProduct = () => {
         setProductName(data.productName);
         setPrice(data.price);
         setCategory(data.category);
-        setSelectedProductRFID(data.RFID.map((RFIDObj) => RFIDObj.RFIDtag));
+        if (data.RFID) {
+          // Check if the RFID field exists
+          setSelectedProductRFID(data.RFID.map((RFIDObj) => RFIDObj.EPC));
+        } else {
+          setSelectedProductRFID([]);
+        }
       } else {
         console.log("No such document!");
       }
@@ -63,29 +69,6 @@ const AddNewExistingProduct = () => {
       console.log("Error getting document:", error);
     }
   };
-
-  useEffect(() => {
-    const rfidRef = realtimeRef(
-      rtdb,
-      "UsersData/cLmwoz9mYfeVQv9u2qdlskMplRy1/data_uploads/rfidtag_id"
-    ); // Replace with the actual path to your RFID tags in the realtime database
-
-    const handleData = (snapshot) => {
-      const fetchedData = snapshot.val();
-      const fetchedRFIDTags = Object.values(fetchedData || {});
-      setRealtimeRFID(fetchedRFIDTags);
-    };
-
-    onValue(rfidRef, handleData, (error) => {
-      console.error("Error fetching RFID tags:", error);
-      toast.error("Error fetching RFID tags:");
-    });
-
-    return () => {
-      // Unsubscribe from the onValue listener when the component unmounts
-      off(rfidRef);
-    };
-  }, []);
 
   //Fetch rfid tag from REALTIME DATABASE
   useEffect(() => {
@@ -123,10 +106,13 @@ const AddNewExistingProduct = () => {
         const productData = doc.data();
         const RFIDArray = productData.RFID;
 
-        RFIDArray.forEach((RFIDObj) => {
-          const RFIDtag = RFIDObj.RFIDtag;
-          allRFIDtags.push({ RFIDtag, productId });
-        });
+        if (RFIDArray) {
+          // Add check for RFIDArray
+          RFIDArray.forEach((RFIDObj) => {
+            const EPC = RFIDObj.EPC;
+            allRFIDtags.push({ EPC, productId });
+          });
+        }
       });
 
       setFirestoreRFID(allRFIDtags);
@@ -155,6 +141,7 @@ const AddNewExistingProduct = () => {
   const navigate = useNavigate("");
   const [errorMessage, setErrorMessage] = useState("");
 
+  //submit the form
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -162,11 +149,11 @@ const AddNewExistingProduct = () => {
       const productsRef = collection(db, "Products");
       let existingRFID = false;
 
-      for (const RFIDtag of firestoreRFID) {
+      for (const EPC of realtimeRFID) {
         const querySnapshot = await getDocs(
           query(
             productsRef,
-            where("RFID", "array-contains", { RFIDtag, isPaid: false })
+            where("RFID", "array-contains", { EPC, isPaid: false })
           )
         );
 
@@ -182,22 +169,21 @@ const AddNewExistingProduct = () => {
         return;
       }
 
-      // Map the RFID array to an array of objects with RFIDtag and isPaid properties
-      const RFIDWithIsPaid = firestoreRFID.map((RFIDtag) => ({
-        RFIDtag,
+      //Map with two field EPC and isPaid to the RFID Array
+      const RFIDWithIsPaid = realtimeRFID.map((EPC) => ({
+        EPC,
         isPaid: false,
       }));
 
       const productRef = doc(db, "Products", productId);
-      await setDoc(productRef, {
+      await updateDoc(productRef, {
         productName: productName,
-        RFID: RFIDWithIsPaid, // Use the modified RFID array
+        RFID: arrayUnion(...RFIDWithIsPaid),
         price: price,
         category: category,
       });
 
       setProductName("");
-      //setRFIDnum([]);
       setPrice("");
       setCategory("");
       setTimeout(() => {
@@ -298,6 +284,24 @@ const AddNewExistingProduct = () => {
 
               <div className="col-span-6 sm:col-span-3">
                 <label
+                  for="product-name"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                >
+                  Product Name
+                </label>
+                <input
+                  type="text"
+                  name="product-name"
+                  id="product-name"
+                  className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  readOnly
+                  value={productName}
+                  onChange={handleProductNameChange}
+                />
+              </div>
+
+              <div className="col-span-6 sm:col-span-3">
+                <label
                   for="selectedProductRFIDtags"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
@@ -344,7 +348,6 @@ const AddNewExistingProduct = () => {
                 </label>
                 <input
                   type="text"
-                  name="category"
                   id="category"
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   value={category}

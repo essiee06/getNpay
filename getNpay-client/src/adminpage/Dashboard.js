@@ -128,10 +128,18 @@ const Dashboard = () => {
                       </td>
                       <td className="px-4 py-3">
                         <ul>
-                          {product.RFID &&
-                            product.RFID.map((RFID, i) => (
-                              <li key={i}>{RFID.RFIDtag}</li>
-                            ))}
+                          {Array.isArray(product.RFID) &&
+                            product.RFID.map((RFID, i) => {
+                              if (RFID && RFID.EPC !== undefined && RFID.isPaid !== undefined) {
+                                return (
+                                  <li key={i}>
+                                    {RFID.EPC.toString()} - {RFID.isPaid ? "Paid" : "Not Paid"}
+                                  </li>
+                                );
+                              } else {
+                                return null;
+                              }
+                            })}
                         </ul>
                       </td>
                       <td className="px-4 py-3">
