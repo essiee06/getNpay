@@ -4,7 +4,7 @@ import { logo3, shoppingcart } from "../assets/index";
 import { NavLink, useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
 
-const Header = () => {
+const Header = ({ products = [] }) => {
   const navigate = useNavigate("");
 
   const handleSignOut = () => {
@@ -43,7 +43,7 @@ const Header = () => {
                 <span className="sr-only">Notifications</span>
 
                 <div className="absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 border-2 border-white rounded-full -top-2 -right-2 dark:border-gray-900">
-                  {/* {products.length} */} 0
+                  {products.length}
                 </div>
               </button>
             </NavLink>
