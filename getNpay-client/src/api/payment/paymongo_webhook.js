@@ -15,7 +15,7 @@ const handler = async (req, res) => {
           Accept: "application/json",
           "Content-Type": "application/json",
           Authorization: `Basic ${Buffer.from(
-            process.env.PAYMONGO_SECRET
+            "sk_test_kE82VnYyRqT5aSTUuATpZf6S"
           ).toString("base64")}`,
         },
         body: JSON.stringify({
@@ -41,10 +41,9 @@ const handler = async (req, res) => {
         .catch((err) => console.error(err));
     }
     if (data.attributes.type === "payment.paid") {
-      // All Payment Types
-      // Add next steps for you
       console.log("Payment Paid");
     }
+
     if (data.attributes.type === "payment.failed") {
       // Failed Payments - Cards Paymaya
       // Add next steps for you

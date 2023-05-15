@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { toast } from "react-toastify";
 import { db } from "../../firebase.config";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { collection, doc, getDocs, updateDoc } from "firebase/firestore";
 
 const GCash = () => {
   const [name, setName] = useState("");
@@ -30,6 +32,39 @@ const GCash = () => {
     setCheckoutID(checkoutIDString);
   }, []);
 
+  const updateAllProducts = async () => {
+    try {
+      const productsRef = collection(db, "Products");
+      const snapshot = await getDocs(productsRef);
+
+      if (snapshot.empty) {
+        console.log("No matching documents.");
+        return;
+      }
+
+      snapshot.forEach((docSnapshot) => {
+        const product = docSnapshot.data();
+        const updatedRFIDs = product.RFID.map((item) => ({
+          ...item,
+          isPaid: true,
+        }));
+
+        const productRef = doc(db, "Products", docSnapshot.id);
+
+        updateDoc(productRef, {
+          RFID: updatedRFIDs,
+        })
+          .then(() => {
+            console.log("Update complete.");
+          })
+          .catch((err) => {
+            console.error("Error updating document: ", err);
+          });
+      });
+    } catch (err) {
+      console.error("Error getting documents", err);
+    }
+  };
   // Function to Create A Source
   const createSource = async () => {
     setPaymentStatus("Creating Source");
@@ -44,8 +79,11 @@ const GCash = () => {
         data: {
           attributes: {
             amount: totalAmt * 100,
+            // Pass the Firestore document ID here
+            metadata: {
+              document_id: checkoutID,
+            },
             redirect: {
-              // Encode the products and total amount as query parameters in the URL
               success: `${window.location.protocol}//${
                 window.location.hostname
               }${
@@ -81,13 +119,12 @@ const GCash = () => {
       setPaymentStatus(`Listening to Payment in ${i}`);
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      if (i === 1) {
+      if (i == 1) {
         const sourceData = await fetch(
           "https://api.paymongo.com/v1/sources/" + sourceId,
           {
             headers: {
-              // Base64 encoded public PayMongo API key.
-              Authorization: `Basic ${btoa(`${publicKey}:`)}`,
+              Authorization: `Basic ${btoa(publicKey + ":")}`,
             },
           }
         )
@@ -98,55 +135,12 @@ const GCash = () => {
             console.log(response.data);
             return response.data;
           });
-
         if (sourceData.attributes.status === "failed") {
           setPaymentStatus("Payment Failed");
         } else if (sourceData.attributes.status === "paid") {
           setPaymentStatus("Payment Success");
-
-          // Delete product from cart
-          const deleteProductResponse = await fetch(
-            "/api/delete-product-from-cart",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ products: products }),
-            }
-          );
-
-          if (!deleteProductResponse.ok) {
-            console.error("Failed to delete product from cart");
-          }
-          // Update isPaid property in Firestore for the corresponding products
-          products.forEach(async (product) => {
-            const productsRef = db.collection("Products");
-            const snapshot = await productsRef
-              .where("RFIDtag", "==", product.RFIDtag)
-              .get();
-
-            if (snapshot.empty) {
-              console.log(
-                `No matching documents for RFIDtag: ${product.RFIDtag}`
-              );
-              return;
-            }
-
-            snapshot.forEach((doc) => {
-              productsRef
-                .doc(doc.id)
-                .update({
-                  isPaid: true,
-                })
-                .then(() => {
-                  console.log("Document successfully updated!");
-                })
-                .catch((error) => {
-                  console.error("Error updating document: ", error);
-                });
-            });
-          });
+          toast.success("Payment Successful");
+          await updateAllProducts();
         } else {
           i = 5;
           setPayProcess(sourceData.attributes.status);
@@ -154,13 +148,15 @@ const GCash = () => {
       }
     }
   };
+
   const onSubmit = async (event) => {
     event.preventDefault();
     const source = await createSource();
 
+    await updateAllProducts();
+
     if (source.errors) {
       console.error("API Error:", source.errors);
-      // toast.error;
       setPaymentStatus("The value for amount cannot be less than 100.00.");
       return;
     }
@@ -168,7 +164,6 @@ const GCash = () => {
     window.open(source.data.attributes.redirect.checkout_url, "_blank");
     listenToPayment(source.data.id);
   };
-
   return (
     <section>
       <div>
@@ -240,6 +235,18 @@ const GCash = () => {
           </form>
         </div>
       </div>
+      <ToastContainer
+        position="top-center"
+        autoClose={2000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
     </section>
   );
 };

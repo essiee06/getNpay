@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
+  sendEmailVerification,
 } from "firebase/auth";
 import { auth } from "../firebase.config";
 import { useNavigate } from "react-router-dom";
@@ -30,6 +31,10 @@ const Register = () => {
         registerPassword
       );
       const user = userCredential.user;
+
+      // Send Email Verification
+      await sendEmailVerification(user);
+
       await addUserToFirestore(user);
       navigate("/");
     } catch (error) {
@@ -80,9 +85,9 @@ const Register = () => {
             </h3>
             <form onSubmit={register} id="register-form" method="POST">
               <div className="grid gap-6 mb-3 md:grid-cols-2">
-                <div classname="py-8 px-4 mx-auto max-w-2xl lg:py-16">
+                <div>
                   <label
-                    for="first_name"
+                    htmlFor="first_name"
                     className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                   >
                     First name
@@ -100,7 +105,7 @@ const Register = () => {
                 </div>
                 <div>
                   <label
-                    for="last_name"
+                    htmlFor="last_name"
                     className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                   >
                     Last name
@@ -118,7 +123,7 @@ const Register = () => {
                 </div>
                 <div>
                   <label
-                    for="Address"
+                    htmlFor="Address"
                     className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                   >
                     Address
@@ -136,7 +141,7 @@ const Register = () => {
                 </div>
                 <div>
                   <label
-                    for="phone"
+                    htmlFor="phone"
                     className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                   >
                     Phone number
@@ -145,8 +150,8 @@ const Register = () => {
                     type="text"
                     id="phone"
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    placeholder="123-45-678"
-                    pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}"
+                    placeholder="09#########"
+                    pattern="[0-9]{11}"
                     required
                     value={registerPhoneNumber}
                     onChange={(e) => setRegisterPhoneNumber(e.target.value)}
@@ -156,7 +161,7 @@ const Register = () => {
               </div>
               <div className="mb-6">
                 <label
-                  for="email"
+                  htmlFor="email"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
                   Email address
@@ -174,7 +179,7 @@ const Register = () => {
               </div>
               <div className="mb-6">
                 <label
-                  for="password"
+                  htmlFor="password"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
                   Password
@@ -192,7 +197,7 @@ const Register = () => {
               </div>
               <div className="mb-6">
                 <label
-                  for="confirm_password"
+                  htmlFor="confirm_password"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
                   Confirm password

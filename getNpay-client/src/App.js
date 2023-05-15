@@ -1,5 +1,3 @@
-import "@stripe/stripe-js";
-import Home from "./pages/Home";
 import {
   createBrowserRouter,
   Outlet,
@@ -7,8 +5,6 @@ import {
   ScrollRestoration,
 } from "react-router-dom";
 import Cart from "./pages/Cart";
-import { productsData } from "./api/Api";
-import Product from "./components/Product";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Forgotpass from "./pages/Forgotpass";
@@ -41,15 +37,6 @@ const router = createBrowserRouter([
     path: "/",
     element: <Layout />,
     children: [
-      {
-        path: "/home",
-        element: <Home />,
-        loader: productsData,
-      },
-      {
-        path: "/ /:id",
-        element: <Product />,
-      },
       {
         path: "/splash",
         element: <Splash />,

@@ -11,6 +11,9 @@ import { db } from "../firebase.config";
 import { MdEdit } from "react-icons/md";
 import { storage } from "../firebase.config";
 import { deleteObject } from "firebase/storage";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 const EditProduct = ({ product }) => {
   const [currentProduct, setCurrentProduct] = useState(product);
   const [showModal, setShowModal] = useState(false);
@@ -65,8 +68,7 @@ const EditProduct = ({ product }) => {
         imageProduct: currentProduct.imageProduct, // Add this line to update the image URL
         // Add any other fields you want to update
       });
-
-      toggleModal();
+      toast.success("Product successfully updated!");
     } catch (error) {
       console.error("Error updating product: ", error);
     }
@@ -106,7 +108,7 @@ const EditProduct = ({ product }) => {
                       Edit Product
                     </h3>
                     <button
-                      onClick={() => setShowModal(false)}
+                      onClick={toggleModal}
                       type="button"
                       className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
                     >
@@ -243,6 +245,18 @@ const EditProduct = ({ product }) => {
             </div>
           </div>
         </div>
+        <ToastContainer
+          position="top-center"
+          autoClose={2000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="dark"
+        />
       </div>
     </>
   );
