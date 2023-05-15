@@ -6,7 +6,7 @@ import { profile } from "../assets";
 import Header from "../components/Header";
 import { useNavigate } from "react-router-dom";
 
-const Profile = () => {
+const Profile = ({ products }) => {
   // let navigate = useNavigate();
 
   // auth.onAuthStateChanged((user) => {
@@ -87,7 +87,7 @@ const Profile = () => {
 
   return (
     <div className="bg-background  bg-no-repeat bg-cover bg-center">
-      <Header />
+      <Header products={products} />
       <div className="min-h-screen max-w-screen-xl mx-auto flex-1 justify-center">
         <div className="grid  grid-cols-1 px-4 pt-6 xl:grid-cols-3 xl:gap-4 dark:bg-gray-900">
           <div className="mb-4 mt-12 pt-5 col-span-full xl:mb-2">

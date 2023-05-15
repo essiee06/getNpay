@@ -3,6 +3,8 @@ import { getAuth } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { logoLight } from "../assets/index";
 import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Login = () => {
   const [loginEmail, setLoginEmail] = useState("");
@@ -24,12 +26,18 @@ const Login = () => {
     e.preventDefault();
     signInWithEmailAndPassword(auth, loginEmail, loginPassword)
       .then((userCredential) => {
-        setTimeout(() => {
-          navigate("/cart");
-        }, 1500);
+        // Check if email is verified
+        if (userCredential.user.emailVerified) {
+          setTimeout(() => {
+            navigate("/cart");
+          }, 1500);
+        } else {
+          // Notify the user to verify their email
+          toast.error("Please verify your email before logging in.");
+        }
       })
       .catch((error) => {
-        alert(error);
+        toast.error("Account does not exist! Please register.");
       });
   };
 
@@ -80,12 +88,6 @@ const Login = () => {
                   >
                     Password
                   </label>
-                  <a
-                    href="/forgotpass"
-                    className="text-sm text-blue-600 hover:underline focus:text-blue-800"
-                  >
-                    Forgot Password?
-                  </a>
                 </div>
                 <input
                   value={loginPassword}
@@ -98,17 +100,12 @@ const Login = () => {
                 />
               </div>
               <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="remember"
-                  className="w-4 h-4 transition duration-300 rounded focus:ring-2 focus:ring-offset-0 focus:outline-none focus:ring-blue-200"
-                />
-                <label
-                  htmlFor="remember"
-                  className="text-sm font-semibold text-gray-500"
+                <a
+                  href="/forgotpass"
+                  className="text-sm text-blue-600 hover:underline focus:text-blue-800"
                 >
-                  Remember me
-                </label>
+                  Forgot Password?
+                </a>
               </div>
               <div>
                 <button
@@ -119,29 +116,19 @@ const Login = () => {
                   Log in
                 </button>
               </div>
-              {/* <div className="flex flex-col space-y-5">
-                <span className="flex items-center justify-center space-x-2">
-                  <span className="h-px bg-gray-400 w-14"></span>
-                  <span className="font-normal text-gray-500">
-                    or login with
-                  </span>
-                  <span className="h-px bg-gray-400 w-14"></span>
-                </span>
-                <div className="flex flex-col space-y-4">
-                  <div
-                    onClick={handleGoogleLogin}
-                    className="flex items-center justify-center px-4 py-2 space-x-2 transition-colors duration-300 border border-gray-800 rounded-md group hover:bg-blue-600 focus:outline-none"
-                  >
-                    <span>
-                      <img className="w-6" src={googleLogo} alt="googleLogo" />
-                    </span>
-                    <span className="text-sm font-medium text-gray-800 group-hover:text-white">
-                      Google
-                    </span>
-                  </div>
-                </div>
-              </div> */}
             </form>
+            <ToastContainer
+              position="top-center"
+              autoClose={2000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+              theme="dark"
+            />
           </div>
         </div>
       </div>

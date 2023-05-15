@@ -1,20 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { auth } from "../firebase.config";
-// import CartItem from "../components/CartItem";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
-import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ref, onValue, off } from "firebase/database";
 import { db, rtdb } from "../firebase.config";
 import { collection, getDocs } from "firebase/firestore";
-import CheckoutForm from "../components/CheckoutForm";
-// import CheckoutForm from "../components/CheckoutForm";
-// import Splash from "../components/Splash";
 
 const Cart = () => {
   let navigate = useNavigate();
-
   const [products, setProducts] = useState([]);
   const [totalAmt, setTotalAmt] = useState(0);
 

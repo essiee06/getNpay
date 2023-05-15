@@ -96,7 +96,7 @@ const CheckoutForm = () => {
               <h3>Order Summary</h3>
               <ul className="max-w-md divide-y divide-gray-200 dark:divide-gray-700">
                 {products.map((item) => (
-                  <li className="pb-3 sm:pb-4">
+                  <li key={item.id} className="pb-3 sm:pb-4">
                     <div className="flex items-center space-x-4">
                       <div className="flex-shrink-0">
                         <img
