@@ -18,12 +18,20 @@ import AdminProfile from "./adminpage/AdminProfile";
 import Profile from "./pages/Profile";
 import AdminRegister from "./adminpage/AdminRegister";
 import GCash from "./components/paymentMethod/GCash";
+import CheckoutForm from "./components/CheckoutForm";
+import { UserProvider } from "./components/context/UserContext";
+import Splash from "./components/Splash";
+import Success from "./components/Success";
+import ErrorPage from "./pages/ErrorPage";
+import Failed from "./components/Failed";
 
 const Layout = () => {
   return (
     <div>
-      <ScrollRestoration />
-      <Outlet />
+      <UserProvider>
+        <ScrollRestoration />
+        <Outlet />
+      </UserProvider>
     </div>
   );
 };
@@ -43,6 +51,10 @@ const router = createBrowserRouter([
         element: <Product />,
       },
       {
+        path: "/splash",
+        element: <Splash />,
+      },
+      {
         path: "/cart",
         element: <Cart />,
       },
@@ -59,12 +71,20 @@ const router = createBrowserRouter([
         element: <Forgotpass />,
       },
       {
-        path: "/login/admin",
+        path: "/success",
+        element: <Success />,
+      },
+      {
+        path: "/admin/login",
         element: <LoginAdmin />,
       },
       {
         path: "/admin/register",
         element: <AdminRegister />,
+      },
+      {
+        path: "/*",
+        element: <ErrorPage />,
       },
       {
         path: "/admin/dashboard",
@@ -79,8 +99,17 @@ const router = createBrowserRouter([
         element: <Profile />,
       },
       {
+        path: "/fail",
+        element: <Failed />,
+      },
+
+      {
         path: "/gcash",
         element: <GCash />,
+      },
+      {
+        path: "/checkout",
+        element: <CheckoutForm />,
       },
     ],
   },
