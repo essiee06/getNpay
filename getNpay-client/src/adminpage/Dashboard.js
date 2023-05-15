@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import HeaderAdmin from "../components/HeaderAdmin";
+import HeaderAdmin from "../adminpage/components/HeaderAdmin";
 import { MdAdd, MdDelete, MdEdit } from "react-icons/md";
 import "react-toastify/dist/ReactToastify.css";
 import { db } from "../firebase.config";
@@ -7,15 +7,18 @@ import {
   collection,
   deleteDoc,
   doc,
-  getDocs,
   onSnapshot,
   query,
 } from "firebase/firestore";
 import AddNewProduct from "./AddNewProduct";
 import AddExistingProduct from "./AddExistingProduct.js";
 import EditProduct from "./EditProduct";
+// import withAdminAuth from "./components/withAdminAuth";
+
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
+  let navigate = useNavigate();
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
@@ -51,6 +54,7 @@ const Dashboard = () => {
       }
     }
   };
+
   return (
     <div>
       <HeaderAdmin />
@@ -129,10 +133,15 @@ const Dashboard = () => {
                         <ul>
                           {Array.isArray(product.RFID) &&
                             product.RFID.map((RFID, i) => {
-                              if (RFID && RFID.EPC !== undefined && RFID.isPaid !== undefined) {
+                              if (
+                                RFID &&
+                                RFID.EPC !== undefined &&
+                                RFID.isPaid !== undefined
+                              ) {
                                 return (
                                   <li key={i}>
-                                    {RFID.EPC.toString()} - {RFID.isPaid ? "Paid" : "Not Paid"}
+                                    {RFID.EPC.toString()} -{" "}
+                                    {RFID.isPaid ? "Paid" : "Not Paid"}
                                   </li>
                                 );
                               } else {

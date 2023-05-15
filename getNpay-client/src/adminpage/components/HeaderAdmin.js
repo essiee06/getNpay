@@ -1,19 +1,19 @@
 import React from "react";
-import { logo3, profile } from "../assets";
+import { logo3, profile } from "../../assets";
 import { NavLink, useNavigate } from "react-router-dom";
 import { getAuth, signOut } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { getFirestore, doc, onSnapshot } from "firebase/firestore";
+import { db } from "../../firebase.config";
 
 const HeaderAdmin = () => {
-  const firestore = getFirestore();
   const auth = getAuth();
   const navigate = useNavigate("");
   const [email, setEmail] = useState("");
 
   useEffect(() => {
     // Replace "documentID" with the actual document ID you want to fetch
-    const adminDocRef = doc(firestore, "admins", "jwqCifCtEByisTsur8xC");
+    const adminDocRef = doc(db, "admins", "8tOdbDoOrTPi4yEkMMfH89CDJ0K3");
 
     const unsubscribe = onSnapshot(adminDocRef, (doc) => {
       if (doc.exists() && doc.data().email) {
@@ -50,7 +50,7 @@ const HeaderAdmin = () => {
       <div className="py-3 lg:px-5 lg:pl-3">
         <div className="max-w-screen-xl h-full mx-auto flex items-center justify-between">
           <div className="flex items-center justify-start">
-            <button
+            {/* <button
               data-drawer-target="logo-sidebar"
               data-drawer-toggle="logo-sidebar"
               aria-controls="logo-sidebar"
@@ -66,19 +66,19 @@ const HeaderAdmin = () => {
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <path
-                  clip-rule="evenodd"
-                  fill-rule="evenodd"
+                  clipRule="evenodd"
+                  fillRule="evenodd"
                   d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"
                 ></path>
               </svg>
-            </button>
+            </button> */}
             <NavLink to="/admin/dashboard" className="flex ml-2 md:mr-24">
               <img src={logo3} className="h-12 mr-5" alt="Logo" />
             </NavLink>
           </div>
           {/* Search Bar */}
           <form action="#" method="GET" className="hidden lg:block lg:pl-3.5">
-            <label for="topbar-search" className="sr-only">
+            <label htmlFor="topbar-search" className="sr-only">
               Search
             </label>
             <div className="relative mt-1 lg:w-96">
@@ -90,9 +90,9 @@ const HeaderAdmin = () => {
                   xmlns="http://www.w3.org/2000/svg"
                 >
                   <path
-                    fill-rule="evenodd"
+                    fillRule="evenodd"
                     d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                    clip-rule="evenodd"
+                    clipRule="evenodd"
                   ></path>
                 </svg>
               </div>
@@ -135,17 +135,17 @@ const HeaderAdmin = () => {
                   >
                     Admin User
                   </p>
-                  <p
+                  <div
                     className="text-sm font-medium text-gray-900 truncate dark:text-gray-300"
                     role="none"
                   >
-                    <p
+                    <div
                       className="text-sm font-medium text-gray-900 truncate dark:text-gray-300"
                       role="none"
                     >
                       {email}
-                    </p>
-                  </p>
+                    </div>
+                  </div>
                 </div>
                 <ul className="py-1" role="none">
                   <li>
