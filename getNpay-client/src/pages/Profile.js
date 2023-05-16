@@ -6,7 +6,7 @@ import { profile } from "../assets";
 import Header from "../components/Header";
 import { useNavigate } from "react-router-dom";
 
-const Profile = ({ products }) => {
+const Profile = ({ products = [] }) => {
   // let navigate = useNavigate();
 
   // auth.onAuthStateChanged((user) => {

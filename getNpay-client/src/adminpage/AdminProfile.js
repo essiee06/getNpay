@@ -2,9 +2,10 @@ import React, { useEffect, useState } from "react";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { auth, db } from "../firebase.config";
 // import Dashboard from "./Dashboard";
-import HeaderAdmin from "../components/HeaderAdmin";
+import HeaderAdmin from "../adminpage/components/HeaderAdmin";
 import { profile } from "../assets";
-import { onAuthStateChanged } from "firebase/auth";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import withAdminAuth from "./components/withAdminAuth";
 
 const AdminProfile = () => {
   const [admins, setAdmin] = useState(null);
@@ -13,6 +14,8 @@ const AdminProfile = () => {
   const [currentpassword, setCurrentPassword] = useState("");
   const [newpassword, setNewPassword] = useState("");
   const [confirmpassword, setConfirmPassword] = useState("");
+
+  const auth = getAuth();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -329,5 +332,4 @@ const AdminProfile = () => {
     </div>
   );
 };
-
-export default AdminProfile;
+export default withAdminAuth(AdminProfile);

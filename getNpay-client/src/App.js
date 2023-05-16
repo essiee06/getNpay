@@ -15,19 +15,18 @@ import Profile from "./pages/Profile";
 import AdminRegister from "./adminpage/AdminRegister";
 import GCash from "./components/paymentMethod/GCash";
 import CheckoutForm from "./components/CheckoutForm";
-import { UserProvider } from "./components/context/UserContext";
 import Splash from "./components/Splash";
 import Success from "./components/Success";
 import ErrorPage from "./pages/ErrorPage";
 import Failed from "./components/Failed";
+import SelectCart from "./pages/SelectCart";
+import SpecificCartPage from "./pages/SpecificCartPage";
 
 const Layout = () => {
   return (
     <div>
-      <UserProvider>
-        <ScrollRestoration />
-        <Outlet />
-      </UserProvider>
+      <ScrollRestoration />
+      <Outlet />
     </div>
   );
 };
@@ -97,6 +96,14 @@ const router = createBrowserRouter([
       {
         path: "/checkout",
         element: <CheckoutForm />,
+      },
+      {
+        path: "/selectcart",
+        element: <SelectCart />,
+      },
+      {
+        path: "/cart/:cartId",
+        element: <SpecificCartPage />,
       },
     ],
   },

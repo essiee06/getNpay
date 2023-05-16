@@ -1,12 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import {
-  collection,
-  where,
-  query,
-  getDocs,
-  setDoc,
-  addDoc,
-} from "firebase/firestore";
+import { collection, where, query, getDocs, setDoc } from "firebase/firestore";
 import {
   ref,
   uploadBytesResumable,
@@ -179,9 +172,9 @@ const AddNewProduct = () => {
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <path
-                  fill-rule="evenodd"
+                  fillRule="evenodd"
                   d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                  clip-rule="evenodd"
+                  clipRule="evenodd"
                 ></path>
               </svg>
             </button>
@@ -191,7 +184,7 @@ const AddNewProduct = () => {
             <div className="grid grid-cols-6 gap-6">
               <div className="col-span-6 sm:col-span-3">
                 <label
-                  for="product-id"
+                  htmlFor="product-id"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
                   Product ID
@@ -212,7 +205,7 @@ const AddNewProduct = () => {
 
               <div className="col-span-6 sm:col-span-3">
                 <label
-                  for="RFIDtagNum"
+                  htmlFor="RFIDtagNum"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
                   RFID Tag UID No.:
@@ -232,7 +225,7 @@ const AddNewProduct = () => {
 
               <div className="col-span-6 sm:col-span-3">
                 <label
-                  for="product-name"
+                  htmlFor="product-name"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
                   Product Name
@@ -251,9 +244,9 @@ const AddNewProduct = () => {
 
               <div className="col-span-6 sm:col-span-3">
                 <label
-                  for="price"
+                  htmlFor="price"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                  numberOnly
+                  numberonly="true"
                 >
                   Price
                 </label>
@@ -270,7 +263,7 @@ const AddNewProduct = () => {
               </div>
               <div className="col-span-6 sm:col-span-3">
                 <label
-                  htmlfor="category"
+                  htmlFor="category"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
                   Select an option
@@ -304,7 +297,7 @@ const AddNewProduct = () => {
               </div>
               <div className="col-span-6 sm:col-span-3">
                 <label
-                  for="company"
+                  htmlFor="company"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
                   Upload Image

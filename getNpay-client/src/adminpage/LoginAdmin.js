@@ -12,17 +12,16 @@ import {
   where,
 } from "firebase/firestore";
 import { useState, useEffect } from "react";
-import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { logoLight } from "../assets/index";
+import { db } from "../firebase.config";
 
-const Login = () => {
+const LoginAdmin = () => {
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   const auth = getAuth();
   const firestore = getFirestore();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -37,7 +36,7 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    const adminRef = collection(firestore, "admins");
+    const adminRef = collection(db, "admins");
     const q = query(adminRef, where("email", "==", loginEmail));
     const querySnapshot = await getDocs(q);
     let validCredentials = false;
@@ -57,57 +56,6 @@ const Login = () => {
     }
   };
 
-  //   const handleGoogleLogin = () => {
-  //     signInWithPopup(auth, provider)
-  //       .then((result) => {
-  //         const user = result.user;
-  //         dispatch(
-  //           addUser({
-  //             _id: user.uid,
-  //             name: user.displayName,
-  //             email: user.email,
-  //             image: user.photoURL,
-  //           })
-  //         );
-  //         // This gives you a Google Access Token. You can use it to access the Google API.
-  //         // const credential = GoogleAuthProvider.credentialFromResult(result);
-  //         // const token = credential.accessToken;
-  //         // // The signed-in user info.
-  //         // const user = result.user;
-  //         // // IdP data available using getAdditionalUserInfo(result)
-  //         // // ...
-  //         setTimeout(() => {
-  //           navigate("/cart");
-  //         }, 1500);
-  //       })
-  //       .catch((error) => {
-  //         // // Handle Errors here.
-  //         // const errorCode = error.code;
-  //         // const errorMessage = error.message;
-  //         // // The email of the user's account used.
-  //         // const email = error.customData.email;
-  //         // // The AuthCredential type that was used.
-  //         // const credential = GoogleAuthProvider.credentialFromError(error);
-  //         // // ...
-  //         console.Log(error);
-  //       });
-  //   };
-
-  //   const handleSignOut = () => {
-  //     signOut(auth)
-  //       .then(() => {
-  //         // Sign-out successful.
-  //         toast.success("Log Out Successfully!");
-  //         dispatch(removeUser());
-  //         setTimeout(() => {
-  //           navigate("/login");
-  //         }, 1500);
-  //       })
-
-  //       .catch((error) => {
-  //         console.log(error);
-  //       });
-  //   };
   return (
     <div className="bg-background bg-no-repeat bg-cover bg-center">
       <div className="flex items-center min-h-screen p-4 lg:justify-center">
@@ -124,7 +72,7 @@ const Login = () => {
             <form action="#" className="flex flex-col space-y-5">
               <div className="flex flex-col space-y-1">
                 <label
-                  for="email"
+                  htmlFor="email"
                   className="text-sm font-semibold text-gray-500"
                 >
                   Email address
@@ -136,14 +84,14 @@ const Login = () => {
                   }}
                   type="email"
                   id="email"
-                  autofocus
+                  autoFocus
                   className="px-4 py-2 transition duration-300 border border-gray-300 rounded focus:border-transparent focus:outline-none focus:ring-4 focus:ring-blue-200"
                 />
               </div>
               <div className="flex flex-col space-y-1">
                 <div className="flex items-center justify-between">
                   <label
-                    for="password"
+                    htmlFor="password"
                     className="text-sm font-semibold text-gray-500"
                   >
                     Password
@@ -172,7 +120,7 @@ const Login = () => {
                   className="w-4 h-4 transition duration-300 rounded focus:ring-2 focus:ring-offset-0 focus:outline-none focus:ring-blue-200"
                 />
                 <label
-                  for="remember"
+                  htmlFor="remember"
                   className="text-sm font-semibold text-gray-500"
                 >
                   Remember me
@@ -195,4 +143,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default LoginAdmin;
