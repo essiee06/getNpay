@@ -52,7 +52,7 @@ const Failed = () => {
           <h1 className="text-2xl font-bold">Transaction failed</h1>
           <p>There's an error</p>
           <a
-            className="inline-flex items-center px-4 py-2 text-white bg-red-600 border border-red-600 rounded rounded-full hover:bg-red-700 focus:outline-none focus:ring"
+            className="inline-flex items-center px-4 py-2 text-white bg-red-600 border border-red-600 rounded-full hover:bg-red-700 focus:outline-none focus:ring"
             href="/cart"
           >
             <svg

@@ -4,7 +4,6 @@ import { auth, db } from "../firebase.config";
 import { onAuthStateChanged } from "firebase/auth";
 import { profile } from "../assets";
 import Header from "../components/Header";
-import { useNavigate } from "react-router-dom";
 
 const Profile = ({ products }) => {
   // let navigate = useNavigate();

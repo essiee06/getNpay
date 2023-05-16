@@ -20,6 +20,7 @@ import Splash from "./components/Splash";
 import Success from "./components/Success";
 import ErrorPage from "./pages/ErrorPage";
 import Failed from "./components/Failed";
+import SelectCart from "./pages/SelectCart";
 
 const Layout = () => {
   return (
@@ -97,6 +98,10 @@ const router = createBrowserRouter([
       {
         path: "/checkout",
         element: <CheckoutForm />,
+      },
+      {
+        path: "/selectcart",
+        element: <SelectCart />,
       },
     ],
   },
