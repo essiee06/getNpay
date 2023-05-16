@@ -6,6 +6,8 @@ import "react-toastify/dist/ReactToastify.css";
 import { ref, onValue, off } from "firebase/database";
 import { db, rtdb } from "../firebase.config";
 import { collection, getDocs } from "firebase/firestore";
+import QRCode from "../components/QRCode";
+
 
 const Cart = () => {
   let navigate = useNavigate();
@@ -99,6 +101,9 @@ const Cart = () => {
         <div className="py-10">
           <div className="w-full">
             <h2 className="font-titleFont text-2xl">shopping cart</h2>
+          </div>
+          <div>
+            <QRCode />
           </div>
           <div>
             <div className="flex border items-center justify-between gap-6 mt-6 px-4">
