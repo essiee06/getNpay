@@ -4,15 +4,15 @@ import { auth, db } from "../firebase.config";
 // import Dashboard from "./Dashboard";
 import HeaderAdmin from "../components/HeaderAdmin";
 import { profile } from "../assets";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, updatePassword } from "firebase/auth";
 
 const AdminProfile = () => {
   const [admins, setAdmin] = useState(null);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [currentpassword, setCurrentPassword] = useState("");
-  const [newpassword, setNewPassword] = useState("");
-  const [confirmpassword, setConfirmPassword] = useState("");
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -27,9 +27,6 @@ const AdminProfile = () => {
             const data = docSnap.data();
             setFirstName(data.firstName || "");
             setLastName(data.lastName || "");
-            setCurrentPassword(data.currentpassword || "");
-            setNewPassword(data.newpassword || "");
-            setConfirmPassword(data.confirmpassword || "");
           } else {
             console.log("No such document!");
           }
@@ -55,15 +52,53 @@ const AdminProfile = () => {
           {
             firstName,
             lastName,
-            currentpassword,
-            newpassword,
-            confirmpassword,
           },
           { merge: true }
         );
         console.log("User data updated");
       } catch (error) {
         console.error("Error updating user data: ", error);
+      }
+    }
+  };
+
+  const onChangePassword = async (e) => {
+    e.preventDefault();
+
+    if (admins) {
+      try {
+        await updatePassword(auth.currentUser, newPassword);
+        console.log("Password updated");
+      } catch (error) {
+        console.error("Error updating password: ", error);
+      }
+    }
+  };
+
+  const onSubmitPassword = async (e) => {
+    e.preventDefault();
+
+    if (newPassword !== confirmPassword) {
+      alert("New password and confirm password do not match");
+      return;
+    }
+
+    if (admins) {
+      try {
+        await updatePassword(admins, newPassword);
+        console.log("Password updated");
+
+        // Update password in Firestore (not recommended)
+        const docRef = doc(db, "admins", admins.uid);
+        await setDoc(
+          docRef,
+          {
+            password: newPassword, // This is not secure!
+          },
+          { merge: true }
+        );
+      } catch (error) {
+        console.error("Error updating password: ", error);
       }
     }
   };
@@ -193,13 +228,13 @@ const AdminProfile = () => {
                         Current password
                       </label>
                       <input
-                        type="text"
+                        type="password"
                         name="current-password"
                         id="current-password"
                         className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                        placeholder="••••••••"
-                        value={currentpassword}
+                        value={currentPassword}
                         onChange={(e) => setCurrentPassword(e.target.value)}
+                        placeholder="••••••••"
                         required
                       />
                     </div>
@@ -214,10 +249,11 @@ const AdminProfile = () => {
                         data-popover-target="popover-password"
                         data-popover-placement="bottom"
                         type="password"
-                        id="password"
+                        name="new-password"
+                        id="new-password"
                         className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                         placeholder="••••••••"
-                        value={newpassword}
+                        value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
                         required
                       />
@@ -300,12 +336,12 @@ const AdminProfile = () => {
                         Confirm password
                       </label>
                       <input
-                        type="text"
+                        type="password"
                         name="confirm-password"
                         id="confirm-password"
                         className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                         placeholder="••••••••"
-                        value={confirmpassword}
+                        value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         required
                       />
@@ -314,7 +350,7 @@ const AdminProfile = () => {
                       <button
                         className="text-black bg-blue hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
                         type="submit"
-                        onClick={onSubmit}
+                        onClick={onSubmitPassword}
                       >
                         Save all
                       </button>
