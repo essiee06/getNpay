@@ -4,25 +4,63 @@ import { auth, db } from "../firebase.config";
 import { onAuthStateChanged } from "firebase/auth";
 import { profile } from "../assets";
 import Header from "../components/Header";
+import {
+  reauthenticateWithCredential,
+  EmailAuthProvider,
+  updatePassword,
+} from "firebase/auth";
 
 const Profile = ({ products }) => {
-  // let navigate = useNavigate();
-
-  // auth.onAuthStateChanged((user) => {
-  //   if (!auth.currentUser) {
-  //     navigate("/");
-  //   }
-  // });
-
   const [user, setUser] = useState(null);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [address, setAddress] = useState("");
   const [email, setEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [currentpassword, setCurrentPassword] = useState("");
-  const [newpassword, setNewPassword] = useState("");
-  const [confirmpassword, setConfirmPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [currentPassword, setCurrentPassword] = useState("");
+
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+
+    // Check if the new password and confirm password match
+    if (newPassword !== confirmPassword) {
+      console.error("New password and confirm password do not match");
+      return;
+    }
+
+    // Re-authenticate the user
+    const user = auth.currentUser;
+    const credential = EmailAuthProvider.credential(
+      user.email,
+      currentPassword
+    );
+    try {
+      await reauthenticateWithCredential(user, credential);
+
+      // Update the user's password
+      await updatePassword(user, newPassword);
+      console.log("Password updated successfully");
+
+      // Store the new password in Firestore
+      const docRef = doc(db, "users", user.uid);
+      try {
+        await setDoc(
+          docRef,
+          {
+            password: newPassword,
+          },
+          { merge: true }
+        );
+        console.log("Password stored in Firestore");
+      } catch (error) {
+        console.error("Error storing password in Firestore: ", error);
+      }
+    } catch (error) {
+      console.error("Error updating password: ", error);
+    }
+  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -40,9 +78,6 @@ const Profile = ({ products }) => {
             setAddress(data.address || "");
             setEmail(data.email || "");
             setPhoneNumber(data.phoneNumber || "");
-            setCurrentPassword(data.currentpassword || "");
-            setNewPassword(data.newpassword || "");
-            setConfirmPassword(data.confirmpassword || "");
           } else {
             console.log("No such document!");
           }
@@ -71,9 +106,6 @@ const Profile = ({ products }) => {
             address,
             email,
             phoneNumber,
-            currentpassword,
-            newpassword,
-            confirmpassword,
           },
           { merge: true }
         );
@@ -242,6 +274,7 @@ const Profile = ({ products }) => {
                     <button
                       className="text-black bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
                       type="submit"
+                      onClick={onSubmit}
                     >
                       Save all
                     </button>
@@ -263,12 +296,12 @@ const Profile = ({ products }) => {
                       Current password
                     </label>
                     <input
-                      type="text"
+                      type="password"
                       name="current-password"
                       id="current-password"
                       className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                       placeholder="••••••••"
-                      value={currentpassword}
+                      value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
                       required
                     />
@@ -287,7 +320,7 @@ const Profile = ({ products }) => {
                       id="password"
                       className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                       placeholder="••••••••"
-                      value={newpassword}
+                      value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       required
                     />
@@ -370,12 +403,12 @@ const Profile = ({ products }) => {
                       Confirm password
                     </label>
                     <input
-                      type="text"
+                      type="password"
                       name="confirm-password"
                       id="confirm-password"
                       className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                       placeholder="••••••••"
-                      value={confirmpassword}
+                      value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       required
                     />
@@ -384,7 +417,7 @@ const Profile = ({ products }) => {
                     <button
                       className="text-black bg-blue hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
                       type="submit"
-                      onClick={onSubmit}
+                      onClick={handleChangePassword}
                     >
                       Save all
                     </button>

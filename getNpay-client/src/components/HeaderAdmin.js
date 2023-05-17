@@ -12,21 +12,22 @@ const HeaderAdmin = () => {
   const [email, setEmail] = useState("");
 
   useEffect(() => {
-    // Replace "documentID" with the actual document ID you want to fetch
-    const adminDocRef = doc(firestore, "admins", "jwqCifCtEByisTsur8xC");
+    if (auth.currentUser) {
+      const adminDocRef = doc(firestore, "admins", auth.currentUser.uid);
 
-    const unsubscribe = onSnapshot(adminDocRef, (doc) => {
-      if (doc.exists() && doc.data().email) {
-        setEmail(doc.data().email);
-      } else {
-        console.log("Document not found or email not defined");
-      }
-    });
+      const unsubscribe = onSnapshot(adminDocRef, (doc) => {
+        if (doc.exists() && doc.data().email) {
+          setEmail(doc.data().email);
+        } else {
+          console.log("Document not found or email not defined");
+        }
+      });
 
-    // Clean up the listener when the component unmounts
-    return () => {
-      unsubscribe();
-    };
+      // Clean up the listener when the component unmounts
+      return () => {
+        unsubscribe();
+      };
+    }
   }, []);
 
   const handleSignOut = () => {
