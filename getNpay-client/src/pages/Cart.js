@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { auth } from "../firebase.config";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
@@ -6,11 +6,13 @@ import "react-toastify/dist/ReactToastify.css";
 import { ref, onValue, off } from "firebase/database";
 import { db, rtdb } from "../firebase.config";
 import { collection, getDocs } from "firebase/firestore";
+import { QRCodeContext } from "../components/context/QRCodeContext";
 
 const Cart = () => {
   let navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [totalAmt, setTotalAmt] = useState(0);
+  const { qrResult } = useContext(QRCodeContext);
 
   const fetchProductsByRfid = async (rfidList) => {
     const productsRef = collection(db, "Products");
@@ -52,10 +54,7 @@ const Cart = () => {
   };
 
   useEffect(() => {
-    const rfidRef = ref(
-      rtdb,
-      "UsersData/cLmwoz9mYfeVQv9u2qdlskMplRy1/data_uploads/rfidtag_id"
-    );
+    const rfidRef = ref(rtdb, `UsersData/{qrResult}/data_uploads/rfidtag_id`);
     const handleNewRfid = (snapshot) => {
       const data = snapshot.val();
 
@@ -70,11 +69,12 @@ const Cart = () => {
     };
 
     onValue(rfidRef, handleNewRfid);
+    console.log(qrResult);
 
     return () => {
       off(rfidRef);
     };
-  }, []);
+  }, [qrResult]);
 
   useEffect(() => {
     let price = 0;

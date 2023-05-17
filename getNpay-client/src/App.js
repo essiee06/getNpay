@@ -21,14 +21,20 @@ import Success from "./components/Success";
 import ErrorPage from "./pages/ErrorPage";
 import Failed from "./components/Failed";
 import SelectCart from "./pages/SelectCart";
+import { useState } from "react";
+import { QRCodeContext } from "./components/context/QRCodeContext";
 
 const Layout = () => {
+  const [qrResult, setQrResult] = useState("");
+
   return (
     <div>
-      <UserProvider>
-        <ScrollRestoration />
-        <Outlet />
-      </UserProvider>
+      <QRCodeContext.Provider value={{ qrResult, setQrResult }}>
+        <UserProvider>
+          <ScrollRestoration />
+          <Outlet />
+        </UserProvider>
+      </QRCodeContext.Provider>
     </div>
   );
 };
