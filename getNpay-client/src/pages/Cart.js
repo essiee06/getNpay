@@ -12,7 +12,7 @@ const Cart = () => {
   let navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [totalAmt, setTotalAmt] = useState(0);
-  const { qrResult } = useContext(QRCodeContext);
+  const { qrResult, setQrResult } = useContext(QRCodeContext);
 
   const fetchProductsByRfid = async (rfidList) => {
     const productsRef = collection(db, "Products");
@@ -25,8 +25,14 @@ const Cart = () => {
         let productRfidCount = 0;
 
         for (const rfid of rfidList) {
-          if (product.RFID && product.RFID.find((item) => item.EPC === rfid)) {
-            productRfidCount += 1;
+          if (product.RFID) {
+            // Find the RFID item that matches the rfid and is not paid
+            const matchingRfidItem = product.RFID.find(
+              (item) => item.EPC === rfid && !item.isPaid
+            );
+            if (matchingRfidItem) {
+              productRfidCount += 1;
+            }
           }
         }
 
@@ -35,7 +41,7 @@ const Cart = () => {
             ...product,
             quantity: productRfidCount,
             RFID: rfidList.filter((rfid) =>
-              product.RFID.find((item) => item.EPC === rfid)
+              product.RFID.find((item) => item.EPC === rfid && !item.isPaid)
             ),
           };
         }
@@ -54,7 +60,7 @@ const Cart = () => {
   };
 
   useEffect(() => {
-    const rfidRef = ref(rtdb, `UsersData/{qrResult}/data_uploads/rfidtag_id`);
+    const rfidRef = ref(rtdb, `UsersData/${qrResult}/data_uploads/rfidtag_id`);
     const handleNewRfid = (snapshot) => {
       const data = snapshot.val();
 
@@ -69,7 +75,7 @@ const Cart = () => {
     };
 
     onValue(rfidRef, handleNewRfid);
-    console.log(qrResult);
+    console.log("this is the cart ID: ", qrResult);
 
     return () => {
       off(rfidRef);
@@ -95,7 +101,7 @@ const Cart = () => {
   return (
     <div>
       <Header products={products} />
-      <div className="container mx-auto my-10">
+      <div className="mx-auto max-w-screen-xl px-4 lg:px-12">
         <div className="py-10">
           <div className="w-full">
             <h2 className="font-titleFont text-2xl">shopping cart</h2>

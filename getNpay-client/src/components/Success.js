@@ -1,5 +1,5 @@
 import React from "react";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const Success = () => {
   const location = useLocation();
@@ -61,9 +61,9 @@ const Success = () => {
             Thank You for YOur Purchase!
           </h1>
           <p>GCash Payment successfully received.</p>
-          <a
+          <Link
             className="inline-flex items-center px-4 py-2 text-white bg-green-600 border border-green-600 rounded rounded-full hover:bg-green-700 focus:outline-none focus:ring"
-            href="/cart"
+            to="/cart"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -80,7 +80,7 @@ const Success = () => {
               />
             </svg>
             <span className="text-sm font-medium">back</span>
-          </a>
+          </Link>
         </div>
       </div>
     </div>

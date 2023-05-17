@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { MdArrowBack, MdClose } from "react-icons/md";
+import React, { useContext, useEffect, useState } from "react";
+import { MdArrowBack } from "react-icons/md";
 import { creditCard, gcash } from "../assets/index";
 import GCash from "../components/paymentMethod/GCash";
 import CreditCard from "./paymentMethod/CreditCard";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const CheckoutForm = () => {
   const [paymentOption, setPaymentOption] = useState(0);
@@ -35,16 +35,15 @@ const CheckoutForm = () => {
   }, []);
 
   return (
-    <div className="bg-background min-h-screen">
+    <div className="bg-background min-h-screen bg-no-repeat bg-cover bg-center">
       {/* <!-- Modal content --> */}
-      <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
-        <div>
-          <h3 className="text-base font-semibold text-gray-900 lg:text-xl dark:text-white">
-            Select Payment Method
-          </h3>
-        </div>
+
+      <div className="px-8 rounded-lg shadow dark:bg-gray-700">
+        <h3 className="text-base p-8 flex justify-center items-center font-semibold text-gray-900 lg:text-xl dark:text-white">
+          Select Payment Method
+        </h3>
         {/* <!-- Modal body --> */}
-        <div className="p-6">
+        <div className="">
           <form
             onChange={(event) => {
               setPaymentOption(event.target.value);
@@ -65,7 +64,7 @@ const CheckoutForm = () => {
                     className="w-10 h-10 ml-2"
                     alt="card-iCon"
                   />
-                  <span className="flex-1 ml-3 whitespace-nowrap">
+                  <span className="flex-1 whitespace-nowrap">
                     Pay with Card
                   </span>
                 </div>
@@ -79,20 +78,18 @@ const CheckoutForm = () => {
                     value={1}
                     className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
                   />{" "}
-                  <img src={gcash} className="w-10 h-10 ml-2" alt="card-iCon" />
-                  <span className="flex-1 ml-3 whitespace-nowrap">
+                  <img src={gcash} className="w-8 h-8 ml-2" alt="card-iCon" />
+                  <span className="flex-1 whitespace-nowrap">
                     Pay with Gcash
                   </span>
                 </div>
               </li>
             </ul>
           </form>
-          <div className="content-center w-full items-center ">
-            <div className="">
-              <h2 className="pt-4">Payment for ID{checkoutID}</h2>
-            </div>
+          <div className="content-center w-full pt-4 items-center ">
+            <div className="px-8 bg-white border mt-5 border-gray-600">
+              <h2 className="py-4">Payment for ID{checkoutID}</h2>
 
-            <div className="p-8 border mt-5 border-gray-600">
               <h3>Order Summary</h3>
               <ul className="max-w-md divide-y divide-gray-200 dark:divide-gray-700">
                 {products.map((item) => (
@@ -122,13 +119,13 @@ const CheckoutForm = () => {
               </ul>
               <h3 className="py-4">Amount to pay: ₱ {totalAmt}</h3>
             </div>
-            <div className="border py-8 mt-10 border-gray-600">
+            <div className="border  bg-white pt-8 mt-10 border-gray-600">
               {displayPaymentForm(paymentOption)}
             </div>
           </div>
 
           <div></div>
-          <div>
+          <div className="py-6">
             <Link to="/cart">
               <button>
                 <MdArrowBack />

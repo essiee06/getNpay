@@ -15,7 +15,6 @@ import Profile from "./pages/Profile";
 import AdminRegister from "./adminpage/AdminRegister";
 import GCash from "./components/paymentMethod/GCash";
 import CheckoutForm from "./components/CheckoutForm";
-import { UserProvider } from "./components/context/UserContext";
 import Splash from "./components/Splash";
 import Success from "./components/Success";
 import ErrorPage from "./pages/ErrorPage";
@@ -30,10 +29,8 @@ const Layout = () => {
   return (
     <div>
       <QRCodeContext.Provider value={{ qrResult, setQrResult }}>
-        <UserProvider>
-          <ScrollRestoration />
-          <Outlet />
-        </UserProvider>
+        <ScrollRestoration />
+        <Outlet />
       </QRCodeContext.Provider>
     </div>
   );

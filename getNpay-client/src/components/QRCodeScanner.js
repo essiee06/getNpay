@@ -3,11 +3,13 @@ import { Html5Qrcode } from "html5-qrcode";
 import { QRCodeContext } from "../components/context/QRCodeContext";
 import { useNavigate } from "react-router-dom";
 
+// Import your SVG icon here, replace `CameraIcon` with your actual import
+import { MdCameraswitch } from "react-icons/md";
+
 const QRCodeScanner = () => {
-  const [qrResult, setQrResult] = useState("");
+  const { qrResult, setQrResult } = useContext(QRCodeContext);
   const [facingMode, setFacingMode] = useState("environment");
   const scannerRef = useRef(null);
-  // const { setQrResult } = useContext(QRCodeContext);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -39,32 +41,30 @@ const QRCodeScanner = () => {
     }
   }, [facingMode, setQrResult, navigate]);
 
+  const toggleFacingMode = () => {
+    setFacingMode((prevMode) => (prevMode === "user" ? "environment" : "user"));
+    console.log(facingMode);
+  };
+
   return (
     <>
       <QRCodeContext.Provider value={qrResult}>
-        <div className="my-2">
-          <label htmlFor="camera" className="sr-only">
-            Select a Camera View:
-          </label>
-          <select
-            value={facingMode}
-            onChange={(e) => setFacingMode(e.target.value)}
-            id="camera"
-            className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+        <div className="my-2 pt-2 ">
+          <button
+            className="flex items-end justify-end  p-4 rounded-lg text-white focus:outline-none"
+            onClick={toggleFacingMode}
           >
-            {" "}
-            <option defaultValue>Select a Camera View</option>
-            <option value="environment">Rear</option>
-            <option value="user">Front</option>
-          </select>
+            <MdCameraswitch className="w-8 h-8" />
+          </button>
+          <div
+            id="reader"
+            ref={scannerRef}
+            className="mx-auto max-w-screen-xl h-auto max-w-full"
+          >
+            {/* Camera feed will be placed here by html5-qrcode */}
+          </div>
         </div>
-        <div
-          id="reader"
-          ref={scannerRef}
-          className="mx-auto max-w-screen-xl h-auto max-w-full"
-        >
-          {/* Camera feed will be placed here by html5-qrcode */}
-        </div>
+
         <p className="text-center">{qrResult}</p>
       </QRCodeContext.Provider>
     </>
