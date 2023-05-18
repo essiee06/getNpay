@@ -7,6 +7,7 @@ import { ref, onValue, off } from "firebase/database";
 import { db, rtdb } from "../firebase.config";
 import { collection, getDocs } from "firebase/firestore";
 import { QRCodeContext } from "../components/context/QRCodeContext";
+import { ImgNotAvail } from "../assets/index";
 
 const Cart = () => {
   let navigate = useNavigate();
@@ -60,6 +61,10 @@ const Cart = () => {
   };
 
   useEffect(() => {
+    let localQrResult = localStorage.getItem("qrResult");
+    if (localQrResult) {
+      setQrResult(localQrResult);
+    }
     const rfidRef = ref(rtdb, `UsersData/${qrResult}/data_uploads/rfidtag_id`);
     const handleNewRfid = (snapshot) => {
       const data = snapshot.val();
@@ -101,11 +106,9 @@ const Cart = () => {
   return (
     <div>
       <Header products={products} />
-      <div className="mx-auto max-w-screen-xl px-4 lg:px-12">
-        <div className="py-10">
-          <div className="w-full">
-            <h2 className="font-titleFont text-2xl">shopping cart</h2>
-          </div>
+      <div className="max-w-screen-xl mx-auto">
+        <div className="py-14">
+  
           <div>
             <div className="flex border items-center justify-between gap-6 mt-6 px-4">
               <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -123,7 +126,7 @@ const Cart = () => {
                     <th scope="col" className="px-6 py-3">
                       Price
                     </th>
-                    <th scope="col" className="px-6 py-3">
+                    <th scope="col" className="px-4 py-3">
                       Amount
                     </th>
                   </tr>
@@ -136,7 +139,7 @@ const Cart = () => {
                         className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
                       >
                         <td className="w-32 p-4">
-                          <img src={item.imageProduct} alt={item.productName} />
+                          <img src={ item ? item.imageProduct : ImgNotAvail} alt={item.productName} />
                         </td>
                         <td className="px-6 py-4 font-semibold text-gray-900 dark:text-white">
                           {item.productName}
@@ -164,19 +167,16 @@ const Cart = () => {
                 </tbody>
               </table>
             </div>
-          </div>
-
-          <div className="bg-[#fafafa] py-6 px-4">
             <div className=" flex flex-col gap-6 border-b-[1px] border-b-gray-400 pb-6">
               <h2 className="text-2xl font-medium "> </h2>
-              <p className="flex items-center gap-4 text-base">
+              <p className="flex px-6 py-2 items-center gap-4 text-base">
                 Subtotal
                 <span className="font-titleFont font-bold text-sm">
                   ₱{totalAmt}
                 </span>
               </p>
             </div>
-            <p className="font-titleFont font-semibold flex justify-between mt-6">
+            <p className="font-titleFont px-6 py-4 font-semibold flex justify-between mt-6">
               Total <span className="text-md font-bold">₱{totalAmt}</span>
             </p>
             <button
@@ -189,9 +189,11 @@ const Cart = () => {
               Proceed to checkout
             </button>
           </div>
+          </div>
+
+           
         </div>
       </div>
-    </div>
   );
 };
 

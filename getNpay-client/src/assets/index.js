@@ -17,8 +17,10 @@ import bg from "./bg.jpg";
 import defaultAvatar from "./defaultAvatar.png";
 import gcash from "./gcash.png";
 import creditCard from "./creditCard.png";
+import ImgNotAvail from "./ImgNotAvail.png"
 
 export {
+  ImgNotAvail,
   gcash,
   creditCard,
   defaultAvatar,

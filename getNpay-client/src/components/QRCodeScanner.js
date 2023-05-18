@@ -24,6 +24,7 @@ const QRCodeScanner = () => {
             qrbox: { width: 250, height: 250 }, // Optional, if you want a bounded box UI
           },
           (decodedText, decodedResult) => {
+            localStorage.setItem("qrResult", decodedText);
             setQrResult(decodedText);
             navigate("/cart");
           },
