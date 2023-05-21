@@ -15,19 +15,23 @@ import Profile from "./pages/Profile";
 import AdminRegister from "./adminpage/AdminRegister";
 import GCash from "./components/paymentMethod/GCash";
 import CheckoutForm from "./components/CheckoutForm";
-import { UserProvider } from "./components/context/UserContext";
 import Splash from "./components/Splash";
 import Success from "./components/Success";
 import ErrorPage from "./pages/ErrorPage";
 import Failed from "./components/Failed";
+import SelectCart from "./pages/SelectCart";
+import { useState } from "react";
+import { QRCodeContext } from "./components/context/QRCodeContext";
 
 const Layout = () => {
+  const [qrResult, setQrResult] = useState("");
+
   return (
     <div>
-      <UserProvider>
+      <QRCodeContext.Provider value={{ qrResult, setQrResult }}>
         <ScrollRestoration />
         <Outlet />
-      </UserProvider>
+      </QRCodeContext.Provider>
     </div>
   );
 };
@@ -97,6 +101,10 @@ const router = createBrowserRouter([
       {
         path: "/checkout",
         element: <CheckoutForm />,
+      },
+      {
+        path: "/selectcart",
+        element: <SelectCart />,
       },
     ],
   },

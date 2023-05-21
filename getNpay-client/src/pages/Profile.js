@@ -4,26 +4,63 @@ import { auth, db } from "../firebase.config";
 import { onAuthStateChanged } from "firebase/auth";
 import { profile } from "../assets";
 import Header from "../components/Header";
-import { useNavigate } from "react-router-dom";
+import {
+  reauthenticateWithCredential,
+  EmailAuthProvider,
+  updatePassword,
+} from "firebase/auth";
 
 const Profile = ({ products }) => {
-  // let navigate = useNavigate();
-
-  // auth.onAuthStateChanged((user) => {
-  //   if (!auth.currentUser) {
-  //     navigate("/");
-  //   }
-  // });
-
   const [user, setUser] = useState(null);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [address, setAddress] = useState("");
   const [email, setEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [currentpassword, setCurrentPassword] = useState("");
-  const [newpassword, setNewPassword] = useState("");
-  const [confirmpassword, setConfirmPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [currentPassword, setCurrentPassword] = useState("");
+
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+
+    // Check if the new password and confirm password match
+    if (newPassword !== confirmPassword) {
+      console.error("New password and confirm password do not match");
+      return;
+    }
+
+    // Re-authenticate the user
+    const user = auth.currentUser;
+    const credential = EmailAuthProvider.credential(
+      user.email,
+      currentPassword
+    );
+    try {
+      await reauthenticateWithCredential(user, credential);
+
+      // Update the user's password
+      await updatePassword(user, newPassword);
+      console.log("Password updated successfully");
+
+      // Store the new password in Firestore
+      const docRef = doc(db, "users", user.uid);
+      try {
+        await setDoc(
+          docRef,
+          {
+            password: newPassword,
+          },
+          { merge: true }
+        );
+        console.log("Password stored in Firestore");
+      } catch (error) {
+        console.error("Error storing password in Firestore: ", error);
+      }
+    } catch (error) {
+      console.error("Error updating password: ", error);
+    }
+  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -41,9 +78,6 @@ const Profile = ({ products }) => {
             setAddress(data.address || "");
             setEmail(data.email || "");
             setPhoneNumber(data.phoneNumber || "");
-            setCurrentPassword(data.currentpassword || "");
-            setNewPassword(data.newpassword || "");
-            setConfirmPassword(data.confirmpassword || "");
           } else {
             console.log("No such document!");
           }
@@ -72,9 +106,6 @@ const Profile = ({ products }) => {
             address,
             email,
             phoneNumber,
-            currentpassword,
-            newpassword,
-            confirmpassword,
           },
           { merge: true }
         );
@@ -88,7 +119,7 @@ const Profile = ({ products }) => {
   return (
     <div className="bg-background  bg-no-repeat bg-cover bg-center">
       <Header products={products} />
-      <div className="min-h-screen max-w-screen-xl mx-auto flex-1 justify-center">
+      <div className="min-h-screen max-w-screen-xl mx-auto flex-1 justify-center ">
         <div className="grid  grid-cols-1 px-4 pt-6 xl:grid-cols-3 xl:gap-4 dark:bg-gray-900">
           <div className="mb-4 mt-12 pt-5 col-span-full xl:mb-2">
             <h1 className="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">
@@ -115,7 +146,7 @@ const Profile = ({ products }) => {
                   <div className="flex items-center space-x-4">
                     <label
                       className="inline-flex items-center px-3 py-2 text-sm bg-blue-400 font-medium text-center text-blue rounded-lg border-primary-800 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
-                      for="file"
+                      htmlFor="file"
                     >
                       <svg
                         className="w-4 h-4 mr-2 -ml-1"
@@ -131,7 +162,7 @@ const Profile = ({ products }) => {
 
                     <input
                       id="file"
-                      class="absolute w-full  h-full"
+                      className="absolute w-full  h-full"
                       type="file"
                       style={{ visibility: "hidden" }}
                     />
@@ -149,7 +180,7 @@ const Profile = ({ products }) => {
                 <div className="grid grid-cols-6 gap-6">
                   <div className="col-span-6 sm:col-span-3">
                     <label
-                      for="first-name"
+                      htmlFor="first-name"
                       className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                     >
                       First Name
@@ -167,7 +198,7 @@ const Profile = ({ products }) => {
                   </div>
                   <div className="col-span-6 sm:col-span-3">
                     <label
-                      for="last-name"
+                      htmlFor="last-name"
                       className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                     >
                       Last Name
@@ -186,7 +217,7 @@ const Profile = ({ products }) => {
 
                   <div className="col-span-6 sm:col-span-3">
                     <label
-                      for="address"
+                      htmlFor="address"
                       className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                     >
                       Address
@@ -204,7 +235,7 @@ const Profile = ({ products }) => {
                   </div>
                   <div className="col-span-6 sm:col-span-3">
                     <label
-                      for="email"
+                      htmlFor="email"
                       className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                     >
                       Email
@@ -222,13 +253,14 @@ const Profile = ({ products }) => {
                   </div>
                   <div className="col-span-6 sm:col-span-3">
                     <label
-                      for="phone-number"
+                      htmlFor="phone-number"
                       className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                     >
                       Phone Number
                     </label>
                     <input
-                      type="number"
+                      type="text"
+                      pattern={"[0-9]{11}"}
                       name="phone-number"
                       id="phone-number"
                       className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
@@ -241,8 +273,9 @@ const Profile = ({ products }) => {
 
                   <div className="col-span-6 sm:col-full">
                     <button
-                      className="text-black bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+                      className="text-black bg-blue-600 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
                       type="submit"
+                      onClick={onSubmit}
                     >
                       Save all
                     </button>
@@ -258,25 +291,25 @@ const Profile = ({ products }) => {
                 <div className="grid grid-cols-6 gap-6">
                   <div className="col-span-6 sm:col-span-3">
                     <label
-                      for="current-password"
+                      htmlFor="current-password"
                       className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                     >
                       Current password
                     </label>
                     <input
-                      type="text"
+                      type="password"
                       name="current-password"
                       id="current-password"
                       className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                       placeholder="••••••••"
-                      value={currentpassword}
+                      value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
                       required
                     />
                   </div>
                   <div className="col-span-6 sm:col-span-3">
                     <label
-                      for="password"
+                      htmlFor="password"
                       className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                     >
                       New password
@@ -288,7 +321,7 @@ const Profile = ({ products }) => {
                       id="password"
                       className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                       placeholder="••••••••"
-                      value={newpassword}
+                      value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       required
                     />
@@ -319,9 +352,9 @@ const Profile = ({ products }) => {
                               xmlns="http://www.w3.org/2000/svg"
                             >
                               <path
-                                fill-rule="evenodd"
+                                fillRule="evenodd"
                                 d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                clip-rule="evenodd"
+                                clipRule="evenodd"
                               ></path>
                             </svg>
                             Upper & lower case letters
@@ -335,9 +368,9 @@ const Profile = ({ products }) => {
                               xmlns="http://www.w3.org/2000/svg"
                             >
                               <path
-                                fill-rule="evenodd"
+                                fillRule="evenodd"
                                 d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                clip-rule="evenodd"
+                                clipRule="evenodd"
                               ></path>
                             </svg>
                             A symbol (#$&)
@@ -351,9 +384,9 @@ const Profile = ({ products }) => {
                               xmlns="http://www.w3.org/2000/svg"
                             >
                               <path
-                                fill-rule="evenodd"
+                                fillRule="evenodd"
                                 d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                clip-rule="evenodd"
+                                clipRule="evenodd"
                               ></path>
                             </svg>
                             A longer password (min. 12 chars.)
@@ -365,27 +398,29 @@ const Profile = ({ products }) => {
                   </div>
                   <div className="col-span-6 sm:col-span-3">
                     <label
-                      for="confirm-password"
+                      htmlFor="confirm-password"
                       className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                     >
                       Confirm password
                     </label>
                     <input
-                      type="text"
+                      type="password"
                       name="confirm-password"
                       id="confirm-password"
                       className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                       placeholder="••••••••"
-                      value={confirmpassword}
+                      value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       required
                     />
                   </div>
                   <div className="col-span-6 sm:col-full">
                     <button
-                      className="text-black bg-blue hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+                      className="text-black bg-blue hover:bg-primary-800 
+                      bg-blue-600
+                      focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
                       type="submit"
-                      onClick={onSubmit}
+                      onClick={handleChangePassword}
                     >
                       Save all
                     </button>

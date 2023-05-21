@@ -1,9 +1,4 @@
-import React from "react";
-import {
-  getAuth,
-  signInWithEmailAndPassword,
-  onAuthStateChanged,
-} from "firebase/auth";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import {
   getFirestore,
   collection,
@@ -12,48 +7,39 @@ import {
   where,
 } from "firebase/firestore";
 import { useState, useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { getDoc, doc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { logoLight } from "../assets/index";
+import { db } from "../firebase.config";
+import { auth } from "../firebase.config";
 
 const Login = () => {
-  const [loginEmail, setLoginEmail] = useState("");
-  const [loginPassword, setLoginPassword] = useState("");
-  const auth = getAuth();
-  const firestore = getFirestore();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  const dispatch = useDispatch();
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      if (currentUser) {
-      }
-    });
-
-    return () => {
-      unsubscribe();
-    };
-  }, []);
-
-  const handleLogin = async (e) => {
+  const login = async (e) => {
     e.preventDefault();
-    const adminRef = collection(firestore, "admins");
-    const q = query(adminRef, where("email", "==", loginEmail));
-    const querySnapshot = await getDocs(q);
-    let validCredentials = false;
-    let adminDocId = ""; // Add this line to store the document ID
-
-    querySnapshot.forEach((doc) => {
-      if (doc.data().password === loginPassword) {
-        validCredentials = true;
-        adminDocId = doc.id; // Store the document ID
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
+      const userRef = doc(db, "admins", user.uid);
+      const docSnap = await getDoc(userRef);
+      if (docSnap.exists()) {
+        const userData = docSnap.data();
+        if (userData.role === "admin") {
+          navigate("/admin/dashboard");
+        } else {
+          alert("You are not an admin!");
+        }
       }
-    });
-
-    if (validCredentials) {
-      navigate("/admin/dashboard", { state: { adminDocId } }); // Pass the document ID as state
-    } else {
-      alert("Invalid credentials.");
+    } catch (error) {
+      alert(error.message);
     }
   };
 
@@ -121,7 +107,7 @@ const Login = () => {
             <h3 className="my-4 text-2xl font-semibold justify-center flex text-blue-600">
               Admin Login{" "}
             </h3>
-            <form action="#" className="flex flex-col space-y-5">
+            <form onSubmit={login} className="flex flex-col space-y-5">
               <div className="flex flex-col space-y-1">
                 <label
                   for="email"
@@ -130,13 +116,11 @@ const Login = () => {
                   Email address
                 </label>
                 <input
-                  value={loginEmail}
-                  onChange={(event) => {
-                    setLoginEmail(event.target.value);
-                  }}
                   type="email"
                   id="email"
                   autofocus
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="px-4 py-2 transition duration-300 border border-gray-300 rounded focus:border-transparent focus:outline-none focus:ring-4 focus:ring-blue-200"
                 />
               </div>
@@ -156,12 +140,10 @@ const Login = () => {
                   </a>
                 </div>
                 <input
-                  value={loginPassword}
-                  onChange={(event) => {
-                    setLoginPassword(event.target.value);
-                  }}
                   type="password"
                   id="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="px-4 py-2 transition duration-300 border border-gray-300 rounded focus:border-transparent focus:outline-none focus:ring-4 focus:ring-blue-200"
                 />
               </div>
@@ -180,11 +162,10 @@ const Login = () => {
               </div>
               <div>
                 <button
-                  onClick={handleLogin}
                   type="submit"
-                  className="w-full px-4 py-2 text-lg  text-white transition-colors duration-300 bg-blue-500 rounded-md shadow hover:bg-blue-600 focus:outline-none focus:ring-blue-200 focus:ring-4"
+                  className="w-full px-4 py-2 text-lg text-white transition-colors duration-300 bg-blue-500 rounded-md shadow hover:bg-blue-600 focus:outline-none focus:ring-blue-200 focus:ring-4"
                 >
-                  <a href="/admin/dashboard">Log in</a>
+                  Log in
                 </button>
               </div>
             </form>

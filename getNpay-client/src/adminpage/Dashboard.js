@@ -129,10 +129,15 @@ const Dashboard = () => {
                         <ul>
                           {Array.isArray(product.RFID) &&
                             product.RFID.map((RFID, i) => {
-                              if (RFID && RFID.EPC !== undefined && RFID.isPaid !== undefined) {
+                              if (
+                                RFID &&
+                                RFID.EPC !== undefined &&
+                                RFID.isPaid !== undefined
+                              ) {
                                 return (
                                   <li key={i}>
-                                    {RFID.EPC.toString()} - {RFID.isPaid ? "Paid" : "Not Paid"}
+                                    {RFID.EPC.toString()} -{" "}
+                                    {RFID.isPaid ? "Paid" : "Not Paid"}
                                   </li>
                                 );
                               } else {

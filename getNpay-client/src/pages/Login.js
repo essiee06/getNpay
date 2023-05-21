@@ -29,7 +29,7 @@ const Login = () => {
         // Check if email is verified
         if (userCredential.user.emailVerified) {
           setTimeout(() => {
-            navigate("/cart");
+            navigate("/selectcart");
           }, 1500);
         } else {
           // Notify the user to verify their email

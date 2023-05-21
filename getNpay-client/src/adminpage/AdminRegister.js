@@ -30,7 +30,7 @@ const RegisterAdmin = () => {
       );
       const user = userCredential.user;
       await addUserToFirestore(user);
-      navigate("/login/admin");
+      navigate("/admin/login");
     } catch (error) {
       alert(error.message);
     }
@@ -54,6 +54,7 @@ const RegisterAdmin = () => {
       phoneNumber: registerPhoneNumber,
       password: registerPassword,
       confirmPassword: registerConfPass,
+      role: "admin", // Add this line to assign the 'admin' role to the user
     };
     await setDoc(userRef, userData);
   };

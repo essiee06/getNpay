@@ -6,6 +6,7 @@ import {
   getDocs,
   setDoc,
   addDoc,
+  getDoc,
 } from "firebase/firestore";
 import {
   ref,
@@ -102,6 +103,13 @@ const AddNewProduct = () => {
       };
 
       const productRef = doc(productsRef, productId);
+      const productSnapshot = await getDoc(productRef);
+
+      if (productSnapshot.exists()) {
+        toast.error(`Product ID: ${productId} already exists`);
+        return;
+      }
+
       await setDoc(productRef, docData);
 
       if (file) {
