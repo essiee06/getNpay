@@ -4,17 +4,50 @@ import { creditCard, gcash } from "../assets/index";
 import GCash from "../components/paymentMethod/GCash";
 import CreditCard from "./paymentMethod/CreditCard";
 import { Link, useNavigate } from "react-router-dom";
+import StripeCheckout from "react-stripe-checkout";
+import axios from "axios";
 
 const CheckoutForm = () => {
   const [paymentOption, setPaymentOption] = useState(0);
   const [totalAmt, setTotalAmt] = useState(0);
   const [checkoutID, setCheckoutID] = useState("");
   const [products, setProducts] = useState([]);
+  const navigate = useNavigate();
+
+  //STRIPE
+  const payment = async (token) => {
+    await axios
+      .post("http://localhost:8000/pay", {
+        amount: totalAmt * 1000,
+        token: token,
+        checkoutID: checkoutID,
+      })
+      .then(() => {
+        navigate("/success");
+      })
+      .catch((error) => {
+        console.error("Payment Error: ", error);
+      });
+  };
 
   const displayPaymentForm = (paymentOption) => {
     const description = checkoutID;
     if (paymentOption == 0) {
-      return <CreditCard amount={totalAmt} description={description} />;
+      return (
+        <>
+          <div className="w-full pb-8 flex items-center justify-center">
+            <StripeCheckout
+              stripeKey="pk_test_51MuEDZFWNvcSsDyX8BLoebDhjtd1Paz2uvoGGFfEaM0w17bY5DZ3ghAQ16tYJSdYcH60N23BFCXmkyr3jKCJymAH00XU1kSebi"
+              name="Get N' Pay"
+              amount={totalAmt * 100}
+              label="Pay with Card"
+              description={`Your Payment amount is $${totalAmt}`}
+              token={payment}
+              // email={userInfo.email}
+            />
+          </div>
+        </>
+      );
     } else if (paymentOption == 1) {
       return <GCash amount={totalAmt} description={description} />;
     }

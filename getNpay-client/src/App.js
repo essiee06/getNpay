@@ -22,6 +22,8 @@ import Failed from "./components/Failed";
 import SelectCart from "./pages/SelectCart";
 import { useState } from "react";
 import { QRCodeContext } from "./components/context/QRCodeContext";
+import Home from "./pages/Home";
+// import Checkout from "./pages/Checkout";
 
 const Layout = () => {
   const [qrResult, setQrResult] = useState("");
@@ -51,6 +53,10 @@ const router = createBrowserRouter([
       },
       {
         path: "/",
+        element: <Home />,
+      },
+      {
+        path: "/login",
         element: <Login />,
       },
       {
@@ -61,6 +67,10 @@ const router = createBrowserRouter([
         path: "/forgotpass",
         element: <Forgotpass />,
       },
+      // {
+      //   path: "/samplepayment",
+      //   element: <Checkout />,
+      // },
       {
         path: "/success",
         element: <Success />,

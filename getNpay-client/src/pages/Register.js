@@ -74,7 +74,7 @@ const Register = () => {
             </div>
             <p className="flex flex-col items-center justify-center mt-10 text-center">
               <span>Already have an account?</span>
-              <a href="/login" className="underline">
+              <a href="/" className="underline">
                 Login here.
               </a>
             </p>

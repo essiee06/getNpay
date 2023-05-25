@@ -14,6 +14,7 @@ import {
 import AddNewProduct from "./AddNewProduct";
 import AddExistingProduct from "./AddExistingProduct.js";
 import EditProduct from "./EditProduct";
+import { ImgNotAvail } from "../assets/index";
 
 const Dashboard = () => {
   const [products, setProducts] = useState([]);
@@ -114,7 +115,11 @@ const Dashboard = () => {
                     >
                       <td className="px-4 py-3">
                         <img
-                          src={product.imageProduct}
+                          src={
+                            product.imageProduct
+                              ? product.imageProduct
+                              : ImgNotAvail
+                          }
                           alt={product.productName}
                           className="w-16"
                         />
@@ -159,13 +164,6 @@ const Dashboard = () => {
                           <MdDelete />
                         </button>
                         <EditProduct product={product} />
-                        {/* <button
-                          data-modal-target={`EditProductModal-${product.id}`}
-                          data-modal-show="EditProductModal"
-                          className="text-gray-500 hover:text-gray-600"
-                        >
-                          <MdEdit />
-                        </button> */}
                       </td>
                     </tr>
                   ))}
