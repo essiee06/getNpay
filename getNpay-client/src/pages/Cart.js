@@ -61,7 +61,7 @@ const Cart = () => {
       setQrResult(localQrResult);
     }
 
-    const rfidRef = ref(rtdb, `UsersData/cLmwoz9mYfeVQv9u2qdlskMplRy1/data_uploads/rfidtag_id`);
+    const rfidRef = ref(rtdb, `UsersData/${qrResult}/data_uploads/rfidtag_id`);
     const handleNewRfid = (snapshot) => {
       const data = snapshot.val();
 
@@ -81,7 +81,7 @@ const Cart = () => {
     return () => {
       off(rfidRef);
     };
-  }, [qrResult]);
+  }, [qrResult, setQrResult]);
 
   useEffect(() => {
     let price = 0;
@@ -181,7 +181,7 @@ const Cart = () => {
                         className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
                       >
                         <td className="w-32 p-4">
-                          <img src={item.imageProduct} alt={item.productName} />
+                          <img src={item.imageProduct ? item.imageProduct : ImgNotAvail} alt={item.productName} />
                         </td>
                         <td className="px-6 py-4 font-semibold text-gray-900 dark:text-white">
                           {item.productName}
