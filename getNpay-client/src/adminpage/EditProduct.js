@@ -11,7 +11,7 @@ import { db } from "../firebase.config";
 import { MdEdit } from "react-icons/md";
 import { storage } from "../firebase.config";
 import { deleteObject } from "firebase/storage";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const EditProduct = ({ product }) => {
@@ -245,18 +245,6 @@ const EditProduct = ({ product }) => {
             </div>
           </div>
         </div>
-        <ToastContainer
-          position="top-center"
-          autoClose={2000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="dark"
-        />
       </div>
     </>
   );

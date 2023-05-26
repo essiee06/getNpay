@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import HeaderAdmin from "../components/HeaderAdmin";
 import { MdAdd, MdDelete, MdEdit } from "react-icons/md";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { db } from "../firebase.config";
 import {
@@ -177,6 +178,18 @@ const Dashboard = () => {
               <AddNewProduct />
               {/* <!-- ADD EXISTING PRODUCT modal --> */}
               <AddExistingProduct />
+              <ToastContainer
+                position="top-center"
+                autoClose={2000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="dark"
+              />
             </div>
           </div>
         </div>

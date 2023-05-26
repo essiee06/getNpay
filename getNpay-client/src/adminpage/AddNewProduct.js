@@ -5,7 +5,6 @@ import {
   query,
   getDocs,
   setDoc,
-  addDoc,
   getDoc,
 } from "firebase/firestore";
 import {
@@ -17,8 +16,14 @@ import {
 import { updateDoc, doc } from "firebase/firestore";
 import { db, rtdb } from "../firebase.config";
 import { useNavigate } from "react-router-dom";
-import { ref as realtimeRef, onValue, off } from "firebase/database";
-import { ToastContainer, toast } from "react-toastify";
+import {
+  ref as realtimeRef,
+  onValue,
+  off,
+  remove,
+  set,
+} from "firebase/database";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const AddNewProduct = () => {
@@ -59,7 +64,27 @@ const AddNewProduct = () => {
   }, []);
 
   const navigate = useNavigate("");
-  const [errorMessage, setErrorMessage] = useState("");
+
+  //clear data
+  const clearData = async () => {
+    const rfidRef = realtimeRef(
+      rtdb,
+      "UsersData/cLmwoz9mYfeVQv9u2qdlskMplRy1/data_uploads/rfidtag_id"
+    );
+    try {
+      await remove(rfidRef);
+      toast.success("Scanned RFID Tag cleared successfully!");
+      // Set the clearedDataFlag to true
+      const clearFlagRef = realtimeRef(
+        rtdb,
+        "UsersData/cLmwoz9mYfeVQv9u2qdlskMplRy1/data_uploads/clearedDataFlag"
+      );
+      await set(clearFlagRef, true);
+    } catch (error) {
+      console.error("Error clearing data: ", error);
+      toast.error("Error clearing data");
+    }
+  };
 
   // submit form
   const handleSubmit = async (e) => {
@@ -69,11 +94,11 @@ const AddNewProduct = () => {
       const productsRef = collection(db, "Products");
       let existingRFID = false;
 
-      for (const RFIDtag of RFID) {
+      for (const EPC of RFID) {
         const querySnapshot = await getDocs(
           query(
             productsRef,
-            where("RFID", "array-contains", { RFIDtag, isPaid: false })
+            where("RFID", "array-contains", { EPC, isPaid: false })
           )
         );
 
@@ -85,7 +110,7 @@ const AddNewProduct = () => {
 
       if (existingRFID) {
         // Display an error if an RFID tag already exists
-        toast.error("RFID Tag ID already exists.");
+        toast.error("RFID Tag EPC already exists.");
         return;
       }
 
@@ -151,7 +176,7 @@ const AddNewProduct = () => {
       toast.success("Product has successfully added");
     } catch (error) {
       console.error("Error adding document: ", error);
-      toast.error(errorMessage);
+      toast.error("Error adding document: ", error);
     }
   };
 
@@ -220,18 +245,26 @@ const AddNewProduct = () => {
 
               <div className="col-span-6 sm:col-span-3">
                 <label
-                  for="RFIDtagNum"
+                  htmlFor="RFIDtagNum"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
-                  RFID Tag UID No.:
+                  RFID Tag EPC No:
                 </label>
                 <div className="flex items-center mb-2">
                   {RFID.length > 0 ? (
-                    <ul className="list-disc pl-5">
-                      {RFID.map((rfid, index) => (
-                        <li key={index}>{rfid}</li>
-                      ))}
-                    </ul>
+                    <div>
+                      <ul className="list-disc pl-5">
+                        {RFID.map((rfid, index) => (
+                          <li key={index}>{rfid}</li>
+                        ))}
+                      </ul>
+                      <button
+                        onClick={clearData}
+                        className=" bg-red-600 text-white rounded hover:bg-red-700 px-2 py-1 mt-2"
+                      >
+                        Clear
+                      </button>
+                    </div>
                   ) : (
                     <p>No RFID Tag Scanned</p>
                   )}
@@ -339,22 +372,6 @@ const AddNewProduct = () => {
             >
               Save all
             </button>
-
-            {/* {errorMessage && (
-              <p className="text-red-500 text-sm">{errorMessage}</p>
-            )} */}
-            <ToastContainer
-              position="top-center"
-              autoClose={2000}
-              hideProgressBar={false}
-              newestOnTop={false}
-              closeOnClick
-              rtl={false}
-              pauseOnFocusLoss
-              draggable
-              pauseOnHover
-              theme="dark"
-            />
           </div>
         </form>
       </div>

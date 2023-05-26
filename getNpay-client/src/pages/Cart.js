@@ -3,7 +3,7 @@ import { auth } from "../firebase.config";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import "react-toastify/dist/ReactToastify.css";
-import { ref, onValue, off } from "firebase/database";
+import { ref, onValue, off, remove, update, get, set } from "firebase/database";
 import { db, rtdb } from "../firebase.config";
 import { collection, getDocs } from "firebase/firestore";
 import { QRCodeContext } from "../components/context/QRCodeContext";
@@ -18,13 +18,12 @@ const Cart = () => {
 
   const fetchProductsByRfid = async (rfidList) => {
     const productsRef = collection(db, "Products");
-    const productsWithRfid = {};
+    const productsWithRfid = [];
 
     try {
       const querySnapshot = await getDocs(productsRef);
       querySnapshot.forEach((doc) => {
         const product = { ...doc.data(), id: doc.id };
-        let productRfidCount = 0;
 
         for (const rfid of rfidList) {
           if (product.RFID) {
@@ -33,32 +32,27 @@ const Cart = () => {
               (item) => item.EPC === rfid && !item.isPaid
             );
             if (matchingRfidItem) {
-              productRfidCount += 1;
+              productsWithRfid.push({
+                ...product,
+                id: product.id + "-" + rfid,
+                quantity: 1,
+                RFID: [rfid],
+              });
             }
           }
-        }
-
-        if (productRfidCount > 0) {
-          productsWithRfid[product.id] = {
-            ...product,
-            quantity: productRfidCount,
-            RFID: rfidList.filter((rfid) =>
-              product.RFID.find((item) => item.EPC === rfid && !item.isPaid)
-            ),
-          };
         }
       });
     } catch (error) {
       console.error("Error fetching products by RFID:", error);
     }
 
-    // Convert the object to an array and sort it alphabetically by product name
-    const groupedProducts = Object.values(productsWithRfid).sort((a, b) =>
+    // Sort the array alphabetically by product name
+    const sortedProducts = productsWithRfid.sort((a, b) =>
       a.productName.localeCompare(b.productName)
     );
-    console.log("Fetched products:", JSON.stringify(groupedProducts, null, 2));
+    console.log("Fetched products:", JSON.stringify(sortedProducts, null, 2));
 
-    setProducts(groupedProducts);
+    setProducts(sortedProducts);
   };
 
   useEffect(() => {
@@ -75,7 +69,7 @@ const Cart = () => {
         console.log("No RFID tags found");
         setProducts([]);
       } else {
-        const rfidList = Object.values(data);
+        const rfidList = Object.values(data); //epc array from realtime database
         console.log(rfidList);
         fetchProductsByRfid(rfidList);
       }
@@ -103,6 +97,51 @@ const Cart = () => {
     localStorage.setItem("products", JSON.stringify(products));
     localStorage.setItem("checkoutID", JSON.stringify(`${Date.now()}-Guide`));
     navigate("/checkout");
+  };
+
+  const decreaseQuantity = async (productId) => {
+    // Split the productId to get the original id and the RFID tag
+    const [, rfid] = productId.split("-");
+
+    // Remove the product from the cart
+    setProducts(products.filter((product) => product.id !== productId));
+
+    // Get the current list of RFID tags from the Realtime Database
+    const rfidRef = ref(rtdb, `UsersData/${qrResult}/data_uploads/rfidtag_id`);
+    const snapshot = await get(rfidRef);
+    if (snapshot.exists()) {
+      let rfidList = snapshot.val();
+
+      // Log the current list of RFID tags and the tag to be removed
+      console.log("Current RFID tags:", rfidList);
+      console.log("RFID tag to be removed:", rfid);
+
+      // Remove the RFID tag from the list
+      rfidList = rfidList.filter((item) => item !== rfid);
+
+      // Log the updated list of RFID tags
+      console.log("Updated RFID tags:", rfidList);
+
+      // Convert the list to an object
+      const rfidObject = {};
+      for (let i = 0; i < rfidList.length; i++) {
+        rfidObject[i] = rfidList[i];
+      }
+
+      // Log the RFID object to be updated in the database
+      console.log("RFID object for database:", rfidObject);
+
+      // Update the list of RFID tags in the Realtime Database
+      set(rfidRef, rfidObject)
+        .then(() => {
+          console.log("RFID tag removed successfully");
+        })
+        .catch((error) => {
+          console.error("Error removing RFID tag:", error);
+        });
+    } else {
+      console.log("No RFID tags found");
+    }
   };
 
   return (
@@ -143,28 +182,31 @@ const Cart = () => {
                         className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
                       >
                         <td className="w-32 p-4">
-                          <img
-                            src={
-                              item.imageProduct
-                                ? item.imageProduct
-                                : ImgNotAvail
-                            }
-                            alt={item.productName}
-                          />
+                          <img src={item.imageProduct} alt={item.productName} />
                         </td>
                         <td className="px-6 py-4 font-semibold text-gray-900 dark:text-white">
                           {item.productName}
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-6 py-4 text-black">
+                          {/* Quantity controls */}
                           <div className="flex items-center space-x-3">
+                            {/* Quantity display */}
                             <span>{item.quantity}</span>
+                            {/* Decrease quantity button */}
+                            <button
+                              onClick={() => decreaseQuantity(item.id)}
+                              className="bg-red-500 text-white px-3 rounded"
+                            >
+                              -
+                            </button>
                           </div>
                         </td>
                         <td className="px-6 py-4 font-semibold text-gray-900 dark:text-white">
                           ₱{item.price}
                         </td>
                         <td className="px-6 py-4 font-semibold text-gray-900 dark:text-white">
-                          ₱ {item.price * item.RFID.length}
+                          ₱
+                          {parseFloat(item.price * item.RFID.length).toFixed(2)}
                         </td>
                       </tr>
                     ))
@@ -181,15 +223,7 @@ const Cart = () => {
           </div>
 
           <div className=" py-6 px-4">
-            <div className=" flex flex-col gap-6 border-b-[1px] border-b-gray-400 pb-6">
-              <h2 className="text-2xl font-medium "> </h2>
-              <p className="flex items-center gap-4 text-base">
-                Subtotal
-                <span className="font-titleFont font-bold text-sm">
-                  ₱{totalAmt}
-                </span>
-              </p>
-            </div>
+            <div className=" border-b-[1px] border-b-gray-400 pb-6"></div>
             <p className="font-titleFont font-semibold flex justify-between mt-6">
               Total <span className="text-md font-bold">₱{totalAmt}</span>
             </p>

@@ -17,8 +17,14 @@ import {
 } from "firebase/storage";
 import { db, rtdb } from "../firebase.config";
 import { useNavigate } from "react-router-dom";
-import { ref as realtimeRef, onValue, off } from "firebase/database";
-import { ToastContainer, toast } from "react-toastify";
+import {
+  ref as realtimeRef,
+  onValue,
+  off,
+  set,
+  remove,
+} from "firebase/database";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const AddNewExistingProduct = () => {
@@ -139,9 +145,29 @@ const AddNewExistingProduct = () => {
   }, []);
 
   const navigate = useNavigate("");
-  const [errorMessage, setErrorMessage] = useState("");
 
-//submit the form
+  //clear data
+  const clearData = async () => {
+    const rfidRef = realtimeRef(
+      rtdb,
+      "UsersData/cLmwoz9mYfeVQv9u2qdlskMplRy1/data_uploads/rfidtag_id"
+    );
+    try {
+      await remove(rfidRef);
+      toast.success("Scanned RFID Tag cleared successfully!");
+      // Set the clearedDataFlag to true
+      const clearFlagRef = realtimeRef(
+        rtdb,
+        "UsersData/cLmwoz9mYfeVQv9u2qdlskMplRy1/data_uploads/clearedDataFlag"
+      );
+      await set(clearFlagRef, true);
+    } catch (error) {
+      console.error("Error clearing data: ", error);
+      toast.error("Error clearing data");
+    }
+  };
+
+  //submit the form
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -192,7 +218,7 @@ const AddNewExistingProduct = () => {
       toast.success("Product has successfully added");
     } catch (error) {
       console.error("Error adding document: ", error);
-      toast.error(errorMessage);
+      toast.error("Error adding document: ", error);
     }
   };
 
@@ -267,17 +293,25 @@ const AddNewExistingProduct = () => {
                   for="RFIDtagNumRealtime"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
-                  Scanned RFID Tag UID No. (Realtime Database):
+                  Scanned RFID Tag EPC No. (Realtime Database):
                 </label>
                 <div className="flex items-center mb-2">
                   {realtimeRFID.length > 0 ? (
-                    <ul className="list-disc pl-5">
-                      {realtimeRFID.map((rfid, index) => (
-                        <li key={index}>{rfid}</li>
-                      ))}
-                    </ul>
+                    <div>
+                      <ul className="list-disc pl-5">
+                        {realtimeRFID.map((rfid, index) => (
+                          <li key={index}>{rfid}</li>
+                        ))}
+                      </ul>
+                      <button
+                        onClick={clearData}
+                        className=" bg-red-600 text-white rounded hover:bg-red-700 px-2 py-1 mt-2"
+                      >
+                        Clear
+                      </button>
+                    </div>
                   ) : (
-                    <p>No RFID Tag Scanned (Realtime Database)</p>
+                    <p>No RFID Tag Scanned</p>
                   )}
                 </div>
               </div>
@@ -366,22 +400,6 @@ const AddNewExistingProduct = () => {
             >
               Save all
             </button>
-
-            {/* {errorMessage && (
-              <p className="text-red-500 text-sm">{errorMessage}</p>
-            )} */}
-            <ToastContainer
-              position="top-center"
-              autoClose={2000}
-              hideProgressBar={false}
-              newestOnTop={false}
-              closeOnClick
-              rtl={false}
-              pauseOnFocusLoss
-              draggable
-              pauseOnHover
-              theme="dark"
-            />
           </div>
         </form>
       </div>
