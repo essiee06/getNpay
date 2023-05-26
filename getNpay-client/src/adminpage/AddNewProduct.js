@@ -138,6 +138,15 @@ const AddNewProduct = () => {
       await setDoc(productRef, docData);
 
       if (file) {
+
+             // Check if the file is an image
+    const acceptedImageTypes = ['image/gif', 'image/jpeg', 'image/png'];
+    if (!acceptedImageTypes.includes(file.type)) {
+      toast.error('Invalid file type. Please upload an image file.');
+      return;
+    }
+
+
         const storage = getStorage();
         const storageRef = ref(storage, `productImage/${doc.id}/${file.name}`);
 

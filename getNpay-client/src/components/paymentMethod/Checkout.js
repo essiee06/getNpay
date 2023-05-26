@@ -4,15 +4,22 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import GCash from "./GCash";
 
-const Checkout = ({ totalAmt, products }) => {
-  const [paymentOption, setPaymentOption] = useState(0);
-  const [checkoutID, setCheckoutID] = useState("");
+const Checkout = ({totalAmt,products}) => {
+
+   const [checkoutID, setCheckoutID] = useState("");
   const navigate = useNavigate();
-  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [showGCash, setShowGCash] = useState(false);
 
   //   // Getting the Checkout Information
-  useEffect(() => {
+   useEffect(() => {
+    // const totalJSON = localStorage.getItem("totalPayment");
+    // const totalNumber = !!totalJSON ? JSON.parse(totalJSON) : 0;
+    // setTotalAmt(totalNumber);
+
+    // const productsJSON = localStorage.getItem("products");
+    // const productsArray = !!totalJSON ? JSON.parse(productsJSON) : [];
+    // setProducts(productsArray);
+
     const checkoutIDJSON = localStorage.getItem("checkoutID");
     const checkoutIDString = !!checkoutIDJSON ? JSON.parse(checkoutIDJSON) : "";
     setCheckoutID(checkoutIDString);

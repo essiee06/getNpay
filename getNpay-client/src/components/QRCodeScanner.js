@@ -50,7 +50,7 @@ const QRCodeScanner = () => {
   return (
     <>
       <QRCodeContext.Provider value={qrResult}>
-        <div className="my-2 pt-2 ">
+        <div className="my-2">
           <button
             className="flex items-end justify-end  p-4 rounded-lg text-white focus:outline-none"
             onClick={toggleFacingMode}
@@ -60,7 +60,7 @@ const QRCodeScanner = () => {
           <div
             id="reader"
             ref={scannerRef}
-            className="mx-auto max-w-screen-xl h-auto max-w-full"
+            className="mx-auto max-w-screen-xl h-auto"
           >
             {/* Camera feed will be placed here by html5-qrcode */}
           </div>

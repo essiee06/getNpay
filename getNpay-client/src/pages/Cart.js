@@ -61,7 +61,7 @@ const Cart = () => {
       setQrResult(localQrResult);
     }
 
-    const rfidRef = ref(rtdb, `UsersData/${qrResult}/data_uploads/rfidtag_id`);
+    const rfidRef = ref(rtdb, `UsersData/cLmwoz9mYfeVQv9u2qdlskMplRy1/data_uploads/rfidtag_id`);
     const handleNewRfid = (snapshot) => {
       const data = snapshot.val();
 
@@ -96,9 +96,9 @@ const Cart = () => {
     localStorage.setItem("totalPayment", JSON.stringify(totalAmt));
     localStorage.setItem("products", JSON.stringify(products));
     localStorage.setItem("checkoutID", JSON.stringify(`${Date.now()}-Guide`));
-    navigate("/checkout");
+    // navigate("/checkout");
   };
-
+ 
   const decreaseQuantity = async (productId) => {
     // Split the productId to get the original id and the RFID tag
     const [, rfid] = productId.split("-");
@@ -147,15 +147,14 @@ const Cart = () => {
   return (
     <div>
       <Header products={products} />
-      <div className="mx-auto max-w-screen-xl px-4 lg:px-12">
-        <div className="py-10">
+      <div  className="flex flex-col justify-center py-14 items-center ">
+      
           <div className="w-full">
-            <h2 className="font-titleFont text-2xl">shopping cart</h2>
           </div>
-          <div>
-            <div className="flex border items-center justify-between gap-6 mt-6 px-4">
+    
+            <div className="flex border items-center justify-between mt-6 ">
               <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                <thead className="text-xs text-gray-700 px-4 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                   <tr>
                     <th scope="col" className="px-6 py-3">
                       <span className="sr-only">Image</span>
@@ -238,6 +237,9 @@ const Cart = () => {
             </button> */}
             <button
               type="button"
+              onClick={() => {
+                ProceedPayment(totalAmt, products);
+              }}
               data-modal-target="checkout"
               data-modal-toggle="checkout"
               className="text-base bg-blue-400 text-white w-full py-3 mt-6 hover:bg-blue-800 duration-300"
@@ -257,8 +259,6 @@ const Cart = () => {
             <Checkout totalAmt={totalAmt} products={products} />
           </div>
         </div>
-      </div>
-    </div>
   );
 };
 

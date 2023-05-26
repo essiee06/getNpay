@@ -153,7 +153,7 @@ const GCash = () => {
     event.preventDefault();
     const source = await createSource();
 
-    await updateAllProducts();
+    // await updateAllProducts();
 
     if (source.errors) {
       console.error("API Error:", source.errors);

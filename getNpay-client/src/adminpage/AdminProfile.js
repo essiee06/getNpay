@@ -3,7 +3,7 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { auth, db } from "../firebase.config";
 // import Dashboard from "./Dashboard";
 import HeaderAdmin from "../components/HeaderAdmin";
-import { profile } from "../assets";
+import { defaultAvatar, profile } from "../assets";
 import { onAuthStateChanged, updatePassword } from "firebase/auth";
 
 const AdminProfile = () => {
@@ -120,7 +120,7 @@ const AdminProfile = () => {
                 <div className="items-center sm:flex xl:block 2xl:flex sm:space-x-4 xl:space-x-0 2xl:space-x-4">
                   <img
                     className="mb-4 rounded-full w-28 h-28 sm:mb-0 xl:mb-4 2xl:mb-0"
-                    src={profile}
+                    src={defaultAvatar}
                     alt="profile"
                   />
                   <div>

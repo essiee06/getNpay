@@ -8,7 +8,7 @@ const SelectCart = () => {
       <div className="px-8 pt-10 pb-10 align-middle text-xl text-white text-center">
         Please scan the QR Code to continue shopping!
       </div>
-      <div className="bg-black px-2 pt-12">
+      <div className="bg-black px-2">
         <QRCodeScanner />
       </div>
     </div>

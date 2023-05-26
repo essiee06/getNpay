@@ -66,15 +66,15 @@ const Register = () => {
 
   return (
     <div className="bg-background bg-no-repeat bg-cover bg-center">
-      <div className="flex items-center min-h-screen p-4 lg:justify-center">
-        <div className="flex flex-col overflow-hidden bg-white bg-opacity-25 rounded-md shadow-lg max md:flex-row md:flex-1 lg:max-w-screen-md">
-          <div className="p-4 py-6 text-white bg-blue-500 bg-opacity-25 md:w-80 md:flex-shrink-0 md:flex md:flex-col md:items-center md:justify-evenly">
-            <div className="my-3 text-4xl font-bold tracking-wider text-center">
-              <img alt="image1" src={logoLight} />
+      <div className="flex items-center min-h-screen justify-center p-4 px-5 lg:justify-center">
+        <div className="flex flex-col overflow-hidden bg-white bg-opacity-25 rounded-md shadow-lg max md:flex-row md:flex-1 w-full">
+          <div className="w-full  py-6 text-white bg-blue-500 bg-opacity-25 md:w-80 md:flex-shrink-0 md:flex md:flex-col md:items-center md:justify-evenly">
+            <div className="text-4xl font-bold  flex justify-center items-center text-center">
+              <img alt="image1" src={logoLight} className="w-24 h-24" />
             </div>
             <p className="flex flex-col items-center justify-center mt-10 text-center">
               <span>Already have an account?</span>
-              <a href="/" className="underline">
+              <a href="/login" className="underline">
                 Login here.
               </a>
             </p>

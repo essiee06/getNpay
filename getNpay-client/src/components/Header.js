@@ -1,11 +1,15 @@
-import React from "react";
+import {React, useState} from "react";
 import { auth } from "../firebase.config";
 import { logo3, shoppingcart } from "../assets/index";
 import { NavLink, useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
 
+
+
 const Header = ({ products = [] }) => {
   const navigate = useNavigate("");
+  const [cartItems, setCartItems] = useState([]);
+
 
   const handleSignOut = () => {
     auth.signOut().then(() => {});
@@ -43,7 +47,7 @@ const Header = ({ products = [] }) => {
                 <span className="sr-only">Notifications</span>
 
                 <div className="absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 border-2 border-white rounded-full -top-2 -right-2 dark:border-gray-900">
-                  {products.length}
+                {products.length}
                 </div>
               </button>
             </NavLink>
@@ -78,7 +82,11 @@ const Header = ({ products = [] }) => {
                   <ul className="py-1" role="none">
                     <li>
                       <a
-                        href="/profile"
+                        onClick={() => {
+                     
+                          navigate('/profile', { cartItems: products });
+              
+                        }}
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
                         role="menuitem"
                       >

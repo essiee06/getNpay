@@ -11,13 +11,14 @@ import { db } from "../firebase.config";
 import { MdEdit } from "react-icons/md";
 import { storage } from "../firebase.config";
 import { deleteObject } from "firebase/storage";
-import { toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const EditProduct = ({ product }) => {
   const [currentProduct, setCurrentProduct] = useState(product);
   const [showModal, setShowModal] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);  
 
   const [, setProduct] = useState(null); // Add this line
 
@@ -29,25 +30,8 @@ const EditProduct = ({ product }) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Delete the old image
-    const oldImageRef = ref(storage, product.imageProduct);
-    await deleteObject(oldImageRef);
+    setSelectedFile(file);
 
-    // Upload the new image
-    const storageRef = ref(storage, `productImage/${product.id}/${file.name}`);
-    const snapshot = await uploadBytes(storageRef, file);
-    const downloadURL = await getDownloadURL(snapshot.ref);
-
-    // Update the imageProduct field in the database
-    await updateDoc(doc(db, "Products", product.id), {
-      imageProduct: downloadURL,
-    });
-
-    // Update the imageProduct field in the local state
-    setProduct((prevProduct) => ({
-      ...prevProduct,
-      imageProduct: downloadURL,
-    }));
   };
 
   const handleInputChange = (e) => {
@@ -58,14 +42,33 @@ const EditProduct = ({ product }) => {
     });
   };
 
+
   const updateProduct = async () => {
     try {
+      let imageUrl = currentProduct.imageProduct;
+      
+      // If a new image file was selected, upload it and update the imageUrl
+      if (selectedFile) {
+        // Delete the old image
+        if (product.imageProduct && product.imageProduct !== '') {
+          const oldImageRef = ref(storage, product.imageProduct);
+          await deleteObject(oldImageRef);
+        }
+
+        // Upload the new image
+        const storageRef = ref(storage, `productImage/${product.id}/${selectedFile.name}`);
+        const snapshot = await uploadBytes(storageRef, selectedFile);
+        const downloadURL = await getDownloadURL(snapshot.ref);
+
+        imageUrl = downloadURL;
+      }
+
       const productRef = doc(db, "Products", product.id);
       await updateDoc(productRef, {
         productName: currentProduct.productName,
         price: currentProduct.price,
         category: currentProduct.category,
-        imageProduct: currentProduct.imageProduct, // Add this line to update the image URL
+        imageProduct: imageUrl, // Use the new imageUrl
         // Add any other fields you want to update
       });
       toast.success("Product successfully updated!");
@@ -234,6 +237,7 @@ const EditProduct = ({ product }) => {
                   {/* <!-- Modal footer --> */}
                   <div className="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600">
                     <button
+                    onPresse
                       type="submit"
                       className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                     >
@@ -245,6 +249,18 @@ const EditProduct = ({ product }) => {
             </div>
           </div>
         </div>
+        <ToastContainer
+          position="top-center"
+          autoClose={2000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="dark"
+        />
       </div>
     </>
   );

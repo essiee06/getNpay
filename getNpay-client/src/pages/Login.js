@@ -43,11 +43,11 @@ const Login = () => {
 
   return (
     <div className="bg-background bg-no-repeat bg-cover bg-center">
-      <div className="flex items-center min-h-screen p-4 lg:justify-center">
-        <div className="flex flex-col overflow-hidden bg-white bg-opacity-25 rounded-md shadow-lg max md:flex-row md:flex-1 lg:max-w-screen-md">
-          <div className="p-4 py-6 text-white bg-blue-500 bg-opacity-25 md:w-60 md:flex-shrink-0 md:flex md:flex-col md:items-center md:justify-evenly">
-            <div className="my-3 text-4xl font-bold tracking-wider text-center">
-              <img src={logoLight} alt="logo" />
+      <div className="flex items-center min-h-screen justify-center p-4 px-5 lg:justify-center">
+        <div className="flex flex-col overflow-hidden bg-white bg-opacity-25 rounded-md shadow-lg max md:flex-row md:flex-1 w-full">
+          <div className="w-full py-6 text-white bg-blue-500 bg-opacity-25 md:w-60 md:flex-shrink-0 md:flex md:flex-col md:items-center md:justify-evenly">
+            <div className="px-4 text-4xl flex justify-center items-center font-bold text-center">
+              <img src={logoLight} alt="logo "className="w-24 h-24" />
             </div>
 
             <p className="flex flex-col items-center justify-center mt-10 text-center">

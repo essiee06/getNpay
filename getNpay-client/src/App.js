@@ -23,6 +23,7 @@ import SelectCart from "./pages/SelectCart";
 import { useState } from "react";
 import { QRCodeContext } from "./components/context/QRCodeContext";
 import Home from "./pages/Home";
+import PaidItems from "./adminpage/PaidItems";
 // import Checkout from "./pages/Checkout";
 
 const Layout = () => {
@@ -115,6 +116,9 @@ const router = createBrowserRouter([
       {
         path: "/selectcart",
         element: <SelectCart />,
+      },  {
+        path: "/paid-items",
+        element: <PaidItems />,
       },
     ],
   },

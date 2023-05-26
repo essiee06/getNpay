@@ -3,6 +3,8 @@ import { getAuth } from "firebase/auth";
 import { app } from "../firebase.config";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "../firebase.config";
+import { MdArrowBack } from "react-icons/md";
+import { Link } from "react-router-dom";
 
 const Forgotpass = () => {
   const [email, setEmail] = useState("");
@@ -21,8 +23,8 @@ const Forgotpass = () => {
 
   return (
     <div className="bg-background bg-no-repeat bg-cover bg-center">
-      <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
-        <div className="w-full p-6 bg-blue-600 bg-opacity-20 rounded-lg shadow dark:border md:mt-0 sm:max-w-md dark:bg-gray-800 dark:border-gray-700 sm:p-8">
+      <div className="flex items-center justify-center px-6 py-8  min-h-screen">
+        <div className="w-full p-6 bg-blue-600 bg-opacity-20 rounded-lg shadow dark:border items-center justify-center">
           <h2 className="mb-1 text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
             Change Password
           </h2>
@@ -62,6 +64,9 @@ const Forgotpass = () => {
           {message && (
             <div className="mt-4 text-center text-black-500">{message}</div>
           )}
+          <Link to="/login"><button className="mt-8 flex justify-center items-center bg-blue-400/75 p-2 rounded text-sm">        
+          <MdArrowBack /> <span className="ml-2">go back to login</span>
+         </button></Link>
         </div>
       </div>
     </div>

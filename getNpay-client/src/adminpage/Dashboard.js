@@ -16,6 +16,7 @@ import AddNewProduct from "./AddNewProduct";
 import AddExistingProduct from "./AddExistingProduct.js";
 import EditProduct from "./EditProduct";
 import { ImgNotAvail } from "../assets/index";
+import { Link } from "react-router-dom";
 
 const Dashboard = () => {
   const [products, setProducts] = useState([]);
@@ -24,29 +25,32 @@ const Dashboard = () => {
     const fetchProducts = () => {
       const productsCollection = collection(db, "Products");
       const q = query(productsCollection);
-
+  
       const unsubscribe = onSnapshot(q, (querySnapshot) => {
         const productsData = [];
         querySnapshot.forEach((doc) => {
-          productsData.push({ id: doc.id, ...doc.data() });
+          const product = doc.data();
+          // Filter out paid items
+          if (Array.isArray(product.RFID) && !product.RFID.some((RFID) => RFID.isPaid)) {
+            productsData.push({ id: doc.id, ...product });
+          }
         });
         setProducts(productsData);
       });
-
+  
       return () => unsubscribe();
     };
-
+  
     fetchProducts();
   }, []);
-
+  
   const handleDelete = async (productId) => {
     if (window.confirm("Are you sure to delete the product?")) {
       try {
         // Delete product from database
         await deleteDoc(doc(db, "Products", productId));
-
+  
         // Update products state by removing the deleted product
-
         setProducts(products.filter((product) => product.id !== productId));
       } catch (error) {
         console.error("Error deleting product: ", error);
@@ -70,6 +74,12 @@ const Dashboard = () => {
                 </div>{" "}
               </div>
               <div className="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
+              <Link
+          to="/paid-items"
+          className="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
+        >
+          View Paid Items
+        </Link>
                 <p
                   type="button"
                   data-modal-target="AddNewProductModal"
@@ -156,7 +166,7 @@ const Dashboard = () => {
                         {product.RFID ? product.RFID.length : 0}
                       </td>
                       <td className="px-4 py-3">{product.category}</td>
-                      <td className="px-4 py-3">{product.price}</td>
+                      <td className="px-4 py-3">₱{product.price}</td>
                       <td className="px-4 py-3">
                         <button
                           onClick={() => handleDelete(product.id)}
